@@ -17,3 +17,17 @@ String toLowerCamelCase(String input) {
 
 /// Validates that a string is valid snake_case.
 bool isValidSnakeCase(String input) => RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(input);
+
+/// Converts CamelCase to snake_case.
+String snakeCase(String input) {
+  if (input.isEmpty) return input;
+  final StringBuffer result = StringBuffer();
+  for (int i = 0; i < input.length; i++) {
+    final String char = input[i];
+    if (char.toUpperCase() == char && i > 0 && input[i - 1] != '_') {
+      result.write('_');
+    }
+    result.write(char.toLowerCase());
+  }
+  return result.toString();
+}

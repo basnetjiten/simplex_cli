@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="NONE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="8f0cd5f1-92d6-495f-9907-b59e0f7c562c" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/bricks/feature/__brick__/lib/features/{{feature_name}}/presentation/cubit/{{feature_name}}_cubit.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bricks/feature/__brick__/lib/features/{{feature_name}}/presentation/cubit/{{feature_name}}_state.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/commands/make_command.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/commands/make_command.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/generators/feature_generator.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/generators/feature_generator.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/runner.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/runner.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/utils/case_utils.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/utils/case_utils.dart" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "basnetjiten"
+  }
+}]]></component>
+  <component name="GitToolBoxStore">
+    <option name="recentBranches">
+      <RecentBranches>
+        <option name="branchesForRepo">
+          <list>
+            <RecentBranchesForRepo>
+              <option name="branches">
+                <list>
+                  <RecentBranch>
+                    <option name="branchName" value="feat/simplex_cli" />
+                    <option name="lastUsedInstant" value="1774588364" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="master" />
+                    <option name="lastUsedInstant" value="1774588363" />
+                  </RecentBranch>
+                </list>
+              </option>
+              <option name="repositoryRootUrl" value="file://$PROJECT_DIR$" />
+            </RecentBranchesForRepo>
+          </list>
+        </option>
+      </RecentBranches>
+    </option>
+  </component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/basnetjiten/simplex_cli",
+    "accountId": "ee848faa-9f5f-4cd7-ac32-98bf8714857a"
+  }
+}]]></component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 8
+}]]></component>
+  <component name="ProjectId" id="3BVwUJ7MxUpe0sNkdcNA2jiHRH9" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "feat/simplex__cli",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/Users/ebpearls/simplex_cli",
+    "show.migrate.to.gradle.popup": "false"
+  }
+}]]></component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="8f0cd5f1-92d6-495f-9907-b59e0f7c562c" name="Changes" comment="" />
+      <created>1774587559443</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1774587559443</updated>
+    </task>
+    <servers />
+  </component>
+</project>

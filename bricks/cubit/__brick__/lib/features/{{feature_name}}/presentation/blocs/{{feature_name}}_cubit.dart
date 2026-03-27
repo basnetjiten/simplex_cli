@@ -45,11 +45,10 @@ class {{feature_class}}Cubit extends SimplexCubit<{{feature_class}}State> {
   Future<void> fetch{{feature_class}}() => handleAPICall(
         call: _repository.get{{feature_class}}(),
         onSuccess: ({{feature_class}}Model data) => state.copyWith(
-          status: BlocStatus.success(
-            apiData: ApiData<{{feature_class}}Model>.fromData(data: data),
-          ),
+          status: BlocStatus.success(),
           data: data,
         ),
+        onFailure: (String error) => state.copyWith(status: BlocStatus.error(error: error)),
       );
   {{/use_paging}}
 }

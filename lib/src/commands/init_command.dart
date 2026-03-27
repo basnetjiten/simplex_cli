@@ -44,7 +44,7 @@ class InitCommand extends Command<int> {
 
   @override
   String get description =>
-      'Initialize simplex_cli in the current Flutter project. Creates simplex.yaml.';
+      'Configure simplex_cli for the project (optional). Derives defaults from pubspec.yaml if skipped.';
 
   @override
   Future<int> run() async {

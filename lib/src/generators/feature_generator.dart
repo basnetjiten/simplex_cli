@@ -17,7 +17,7 @@ class FeatureGenerator {
     required bool usePaging,
     required bool generateTests,
   }) async {
-    final String brickPath = await _resolveBrickPath();
+    final String brickPath = await _resolveBrickPath('feature');
     final Brick brick = Brick.path(brickPath);
     final MasonGenerator generator = await MasonGenerator.fromBrick(brick);
 
@@ -78,7 +78,7 @@ class FeatureGenerator {
     required bool dryRun,
     required Logger logger,
   }) async {
-    final String brickPath = await _resolveBrickPath();
+    final String brickPath = await _resolveBrickPath('feature');
     final Brick brick = Brick.path(brickPath);
     final MasonGenerator generator = await MasonGenerator.fromBrick(brick);
 
@@ -154,8 +154,40 @@ class FeatureGenerator {
     }
   }
 
+  /// Generates a specific component (cubit, model, page) using its brick.
+  static Future<void> generateComponent({
+    required String projectRoot,
+    required SimplexConfig config,
+    required String brickName,
+    required String featureName,
+    required String featureClass,
+    required Map<String, dynamic> additionalVars,
+  }) async {
+    final String brickPath = await _resolveBrickPath(brickName);
+    final Brick brick = Brick.path(brickPath);
+    final MasonGenerator generator = await MasonGenerator.fromBrick(brick);
+
+    final DirectoryGeneratorTarget target = DirectoryGeneratorTarget(
+      Directory(projectRoot),
+    );
+
+    final Map<String, dynamic> vars = <String, dynamic>{
+      'feature_name': featureName,
+      'feature_class': featureClass,
+      'package_name': config.packageName,
+      ...additionalVars,
+    };
+
+    await generator.generate(
+      target,
+      vars: vars,
+      logger: Logger(),
+      fileConflictResolution: FileConflictResolution.overwrite,
+    );
+  }
+
   /// Resolves path to the bundled bricks directory.
-  static Future<String> _resolveBrickPath() async {
+  static Future<String> _resolveBrickPath(String brickName) async {
     // Try to resolve via package URI first (best for global/snapshot execution)
     // We look for a known file in lib/ and then go up to the package root.
     final Uri packageUri = Uri.parse('package:simplex_cli/simplex_cli.dart');
@@ -164,7 +196,7 @@ class FeatureGenerator {
     if (resolvedUri != null && resolvedUri.scheme == 'file') {
       final String libPath = resolvedUri.toFilePath();
       final String packageRoot = p.dirname(p.dirname(libPath)); // up from lib/
-      final String candidate = p.join(packageRoot, 'bricks', 'feature');
+      final String candidate = p.join(packageRoot, 'bricks', brickName);
       if (Directory(candidate).existsSync()) {
         return candidate;
       }
@@ -175,7 +207,7 @@ class FeatureGenerator {
     Directory current = Directory(p.dirname(scriptPath));
 
     while (current.path != current.parent.path) {
-      final String candidate = p.join(current.path, 'bricks', 'feature');
+      final String candidate = p.join(current.path, 'bricks', brickName);
       if (Directory(candidate).existsSync()) {
         return candidate;
       }
@@ -183,13 +215,13 @@ class FeatureGenerator {
     }
 
     // Final Fallback: relative to CWD
-    final String cwdCandidate = p.join(Directory.current.path, 'bricks', 'feature');
+    final String cwdCandidate = p.join(Directory.current.path, 'bricks', brickName);
     if (Directory(cwdCandidate).existsSync()) {
       return cwdCandidate;
     }
 
     throw StateError(
-      'Could not find bricks/feature directory. '
+      'Could not find bricks/$brickName directory. '
       'Checked via Isolate, upwards from $scriptPath, and in CWD (${Directory.current.path}).\n'
       'Make sure the "bricks" folder exists at the root of the simplex_cli package.',
     );

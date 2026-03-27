@@ -113,14 +113,40 @@ String? findProjectRoot() {
   }
 }
 
-/// Loads simplex.yaml from [projectRoot]. Returns null if not found.
+/// Loads simplex.yaml from [projectRoot].
+/// If simplex.yaml is not found, attempts to derive a default config from pubspec.yaml.
 SimplexConfig? loadConfig(String projectRoot) {
   final File file = File(p.join(projectRoot, _configFileName));
-  if (!file.existsSync()) {
+  if (file.existsSync()) {
+    final dynamic yaml = loadYaml(file.readAsStringSync());
+    return SimplexConfig.fromYaml((yaml as Map<dynamic, dynamic>));
+  }
+
+  // Fallback: derive from pubspec.yaml
+  return _getFallbackConfig(projectRoot);
+}
+
+SimplexConfig? _getFallbackConfig(String projectRoot) {
+  final File pubspec = File(p.join(projectRoot, 'pubspec.yaml'));
+  if (!pubspec.existsSync()) {
     return null;
   }
-  final dynamic yaml = loadYaml(file.readAsStringSync());
-  return SimplexConfig.fromYaml((yaml as Map<dynamic, dynamic>));
+
+  String packageName = p.basename(projectRoot);
+  final String content = pubspec.readAsStringSync();
+  final RegExpMatch? match = RegExp(r'^name:\s*(.+)$', multiLine: true).firstMatch(content);
+  if (match != null) {
+    packageName = match.group(1)!.trim();
+  }
+
+  return SimplexConfig(
+    projectName: packageName,
+    packageName: packageName,
+    featuresPath: 'lib/features',
+    testPath: 'test/features',
+    defaultApi: 'graphql',
+    features: <String, FeatureConfig>{},
+  );
 }
 
 /// Saves [config] to simplex.yaml in [projectRoot].

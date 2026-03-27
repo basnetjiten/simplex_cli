@@ -1,10 +1,16 @@
 import 'package:args/command_runner.dart';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:simplex_cli/src/commands/make_feature_command.dart';
+import 'package:simplex_cli/src/commands/make_cubit_command.dart';
+import 'package:simplex_cli/src/commands/make_model_command.dart';
+import 'package:simplex_cli/src/commands/make_page_command.dart';
 
 class MakeCommand extends Command<int> {
   MakeCommand({required Logger logger}) : _logger = logger {
     addSubcommand(MakeFeatureCommand(logger: logger));
+    addSubcommand(MakeCubitCommand(logger: logger));
+    addSubcommand(MakeModelCommand(logger: logger));
+    addSubcommand(MakePageCommand(logger: logger));
   }
 
   final Logger _logger;
