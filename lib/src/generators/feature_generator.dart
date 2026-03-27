@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:mason/mason.dart';
 import 'package:path/path.dart' as p;
@@ -16,7 +17,7 @@ class FeatureGenerator {
     required bool usePaging,
     required bool generateTests,
   }) async {
-    final String brickPath = _resolveBrickPath();
+    final String brickPath = await _resolveBrickPath();
     final Brick brick = Brick.path(brickPath);
     final MasonGenerator generator = await MasonGenerator.fromBrick(brick);
 
@@ -77,7 +78,7 @@ class FeatureGenerator {
     required bool dryRun,
     required Logger logger,
   }) async {
-    final String brickPath = _resolveBrickPath();
+    final String brickPath = await _resolveBrickPath();
     final Brick brick = Brick.path(brickPath);
     final MasonGenerator generator = await MasonGenerator.fromBrick(brick);
 
@@ -154,13 +155,25 @@ class FeatureGenerator {
   }
 
   /// Resolves path to the bundled bricks directory.
-  static String _resolveBrickPath() {
-    // When installed via pub global, the package root is accessible via Platform.script.
-    // The brick lives relative to the package root.
+  static Future<String> _resolveBrickPath() async {
+    // Try to resolve via package URI first (best for global/snapshot execution)
+    // We look for a known file in lib/ and then go up to the package root.
+    final Uri packageUri = Uri.parse('package:simplex_cli/simplex_cli.dart');
+    final Uri? resolvedUri = await Isolate.resolvePackageUri(packageUri);
+
+    if (resolvedUri != null && resolvedUri.scheme == 'file') {
+      final String libPath = resolvedUri.toFilePath();
+      final String packageRoot = p.dirname(p.dirname(libPath)); // up from lib/
+      final String candidate = p.join(packageRoot, 'bricks', 'feature');
+      if (Directory(candidate).existsSync()) {
+        return candidate;
+      }
+    }
+
+    // Fallback: search upwards from the script location (for local dev with path activation)
     final String scriptPath = Platform.script.toFilePath();
     Directory current = Directory(p.dirname(scriptPath));
 
-    // Search upwards from the script location for the 'bricks' folder
     while (current.path != current.parent.path) {
       final String candidate = p.join(current.path, 'bricks', 'feature');
       if (Directory(candidate).existsSync()) {
@@ -169,7 +182,7 @@ class FeatureGenerator {
       current = current.parent;
     }
 
-    // Fallback: relative to CWD (for local dev)
+    // Final Fallback: relative to CWD
     final String cwdCandidate = p.join(Directory.current.path, 'bricks', 'feature');
     if (Directory(cwdCandidate).existsSync()) {
       return cwdCandidate;
@@ -177,7 +190,8 @@ class FeatureGenerator {
 
     throw StateError(
       'Could not find bricks/feature directory. '
-      'Checked upwards from $scriptPath and in CWD (${Directory.current.path}).',
+      'Checked via Isolate, upwards from $scriptPath, and in CWD (${Directory.current.path}).\n'
+      'Make sure the "bricks" folder exists at the root of the simplex_cli package.',
     );
   }
 
