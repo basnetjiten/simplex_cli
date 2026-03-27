@@ -157,14 +157,28 @@ class FeatureGenerator {
   static String _resolveBrickPath() {
     // When installed via pub global, the package root is accessible via Platform.script.
     // The brick lives relative to the package root.
-    final String scriptDir = p.dirname(Platform.script.toFilePath());
-    // Try: bin/../bricks/feature (typical activation layout)
-    final String candidate = p.normalize(p.join(scriptDir, '..', 'bricks', 'feature'));
-    if (Directory(candidate).existsSync()) {
-      return candidate;
+    final String scriptPath = Platform.script.toFilePath();
+    Directory current = Directory(p.dirname(scriptPath));
+
+    // Search upwards from the script location for the 'bricks' folder
+    while (current.path != current.parent.path) {
+      final String candidate = p.join(current.path, 'bricks', 'feature');
+      if (Directory(candidate).existsSync()) {
+        return candidate;
+      }
+      current = current.parent;
     }
+
     // Fallback: relative to CWD (for local dev)
-    return p.join(Directory.current.path, 'bricks', 'feature');
+    final String cwdCandidate = p.join(Directory.current.path, 'bricks', 'feature');
+    if (Directory(cwdCandidate).existsSync()) {
+      return cwdCandidate;
+    }
+
+    throw StateError(
+      'Could not find bricks/feature directory. '
+      'Checked upwards from $scriptPath and in CWD (${Directory.current.path}).',
+    );
   }
 
   // Load bundle is no longer needed as we use fromBrick directly
