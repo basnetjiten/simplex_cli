@@ -21,46 +21,48 @@ class {{feature_class}}Page extends StatefulWidget {
 }
 
 class _{{feature_class}}PageState extends State<{{feature_class}}Page> {
-  late final {{feature_class}}Cubit _cubit;
-
-  @override
-  void initState() {
-    super.initState();
-    _cubit = getIt<{{feature_class}}Cubit>();
-    {{^use_paging}}
-    _cubit.fetch{{feature_class}}();
-    {{/use_paging}}
-  }
-
-  @override
-  void dispose() {
-    _cubit.close();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<{{feature_class}}Cubit>.value(
-      value: _cubit,
+    return BlocProvider<{{feature_class}}Cubit>(
+      create: (BuildContext context) => getIt<{{feature_class}}Cubit>()
+        {{^use_paging}}..fetch{{feature_class}}(){{/use_paging}},
       {{#use_paging}}
-      child: BlocProvider<PagingCubit<int, {{feature_class}}Model>>(
-        create: (BuildContext context) =>
-            PagingCubit<int, {{feature_class}}Model>(
-              initialKey: 1,
-              fetchFn: _cubit.fetch{{feature_class}},
-            )..fetchNext(),
-        child: Builder(
-          builder: (BuildContext context) => Scaffold(
+      child: Builder(
+        builder: (BuildContext context) =>
+            BlocProvider<PagingCubit<int, {{feature_class}}Model>>(
+          create: (BuildContext context) =>
+              PagingCubit<int, {{feature_class}}Model>(
+                initialKey: 1,
+                fetchFn: context.read<{{feature_class}}Cubit>().fetch{{feature_class}},
+              )..fetchNext(),
+          child: Scaffold(
             appBar: AppBar(
               title: const Text('{{feature_class}}'),
             ),
-            body: BlocBuilder<
-                PagingCubit<int, {{feature_class}}Model>,
+            body: BlocBuilder<PagingCubit<int, {{feature_class}}Model>,
                 PagingState<int, {{feature_class}}Model>>(
-              builder: (BuildContext context,
-                  PagingState<int, {{feature_class}}Model> state) {
-                // TODO: replace with PagedSliverList or your custom paged widget
-                return const Center(child: Text('Add your paged UI here'));
+              builder: (
+                BuildContext context,
+                PagingState<int, {{feature_class}}Model> state,
+              ) {
+                return state.when(
+                  initial: () => const SizedBox.shrink(),
+                  loading: (List<{{feature_class}}Model> items) =>
+                      const Center(child: CircularProgressIndicator()),
+                  success: (List<{{feature_class}}Model> items, bool hasNextPage) =>
+                      ListView.builder(
+                    itemCount: items.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final {{feature_class}}Model item = items[index];
+                      return ListTile(
+                        title: Text(item.name),
+                      );
+                    },
+                  ),
+                  error: (String? message) => Center(
+                    child: Text(message ?? 'An error occurred'),
+                  ),
+                );
               },
             ),
           ),

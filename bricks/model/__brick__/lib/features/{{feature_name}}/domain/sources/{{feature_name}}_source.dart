@@ -1,3 +1,17 @@
+{{#use_graphql}}
+import 'package:fpdart/fpdart.dart';
+
+/// Abstract source contract for [{{feature_class}}].
+/// Replace [Unit] with the actual Ferry-generated GXData type after generation.
 abstract class {{feature_class}}Source {
-  Future<dynamic> get{{feature_class}}();
+  Future<Unit> get{{feature_class}}();
 }
+{{/use_graphql}}
+{{^use_graphql}}
+import 'package:{{package_name}}/features/{{feature_name}}/data/models/{{feature_name}}_model.dart';
+
+/// Abstract source contract for [{{feature_class}}].
+abstract class {{feature_class}}Source {
+  Future<{{feature_class}}Model> get{{feature_class}}();
+}
+{{/use_graphql}}
