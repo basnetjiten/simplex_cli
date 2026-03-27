@@ -31,7 +31,9 @@ class ConvertCommand extends Command<int> {
   String get name => 'convert';
 
   @override
-  String get description => 'Convert a feature\'s data layer between GraphQL and REST implementations.';
+  String get description =>
+      'Convert a feature\'s data layer between GraphQL and REST implementations.\n'
+      'Example: simplex convert login --to rest';
 
   @override
   Future<int> run() async {

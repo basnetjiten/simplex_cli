@@ -28,7 +28,9 @@ class MakeFeatureCommand extends Command<int> {
   String get name => 'feature';
 
   @override
-  String get description => 'Scaffold a complete feature module (data, domain, and presentation).';
+  String get description =>
+      'Scaffold a complete feature module (data, domain, and presentation).\n'
+      'Example: simplex make feature -n login --api graphql --paging';
 
   @override
   Future<int> run() async {

@@ -20,7 +20,9 @@ class AddPagingCommand extends Command<int> {
   String get name => 'paging';
 
   @override
-  String get description => 'Add Simplex pagination method to an existing Cubit.';
+  String get description =>
+      'Add Simplex pagination method to an existing Cubit.\n'
+      'Example: simplex add paging -f products -n List';
 
   @override
   Future<int> run() async {

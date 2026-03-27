@@ -21,7 +21,9 @@ class MakeCubitCommand extends Command<int> {
   String get name => 'cubit';
 
   @override
-  String get description => 'Create a new Cubit and State for a feature.';
+  String get description =>
+      'Create a new Cubit and State for a feature.\n'
+      'Example: simplex make cubit -f products -n List --paging';
 
   @override
   Future<int> run() async {

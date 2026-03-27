@@ -19,7 +19,9 @@ class MakeModelCommand extends Command<int> {
   String get name => 'model';
 
   @override
-  String get description => 'Create a new Data Model, Source, and Repository.';
+  String get description =>
+      'Create a new Data Model, Source, and Repository.\n'
+      'Example: simplex make model -f auth -n Profile --api rest';
 
   @override
   Future<int> run() async {

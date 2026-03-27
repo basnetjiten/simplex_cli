@@ -21,7 +21,9 @@ class MakePageCommand extends Command<int> {
   String get name => 'page';
 
   @override
-  String get description => 'Create a new Page for a feature.';
+  String get description =>
+      'Create a new Page for a feature.\n'
+      'Example: simplex make page -f settings -n Notification';
 
   @override
   Future<int> run() async {

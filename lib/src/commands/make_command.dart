@@ -19,7 +19,9 @@ class MakeCommand extends Command<int> {
   String get name => 'make';
 
   @override
-  String get description => 'A suite of commands for scaffolding feature modules and components.';
+  String get description =>
+      'A suite of commands for scaffolding feature modules and components.\n'
+      'Example: simplex make feature -n login';
 
   @override
   Future<int> run() async {
