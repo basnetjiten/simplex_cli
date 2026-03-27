@@ -55,6 +55,7 @@ class MakePageCommand extends Command<int> {
         },
       );
       progress.complete('Page generated!');
+      await FeatureGenerator.runBuildRunner(projectRoot, _logger);
     } catch (e) {
       progress.fail('Generation failed: $e');
       return 1;

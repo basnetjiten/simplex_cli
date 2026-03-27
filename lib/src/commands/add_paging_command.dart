@@ -5,6 +5,7 @@ import 'package:interact/interact.dart' hide Progress;
 import 'package:mason_logger/mason_logger.dart';
 import 'package:path/path.dart' as p;
 import 'package:simplex_cli/src/config/simplex_config.dart';
+import 'package:simplex_cli/src/generators/feature_generator.dart';
 import 'package:simplex_cli/src/utils/case_utils.dart';
 
 class AddPagingCommand extends Command<int> {
@@ -81,6 +82,7 @@ class AddPagingCommand extends Command<int> {
       final String updatedContent = _injectPagingMethod(content, className);
       cubitFile.writeAsStringSync(updatedContent);
       progress.complete('Pagination method added to ${p.basename(cubitFile.path)}!');
+      await FeatureGenerator.runBuildRunner(projectRoot, _logger);
       
       _logger.info('');
       _logger.info('Note: Make sure to add needed imports if not present:');
@@ -93,12 +95,22 @@ class AddPagingCommand extends Command<int> {
 
     return 0;
   }
-
   String _injectPagingMethod(String content, String className) {
-    // Find the last closing brace of the class
-    final String classPattern = 'class $className extends SimplexCubit';
-    if (!content.contains(classPattern)) {
-      throw Exception('Could not find class definition for $className');
+    final List<String> classNameCandidates = <String>[
+      className,
+      '${className}Cubit',
+    ];
+
+    String? foundClass;
+    for (final String candidate in classNameCandidates) {
+      if (content.contains('class $candidate extends SimplexCubit')) {
+        foundClass = candidate;
+        break;
+      }
+    }
+
+    if (foundClass == null) {
+      throw Exception('Could not find class definition for $className or ${className}Cubit extending SimplexCubit');
     }
 
     final int lastBraceIndex = content.lastIndexOf('}');
@@ -107,7 +119,7 @@ class AddPagingCommand extends Command<int> {
     }
 
     final String methodSnippet = '''
-
+ 
   /// Fetch function consumed by [PagingCubit].
   /// Returns a tuple of (items, nextPageKey) — pass null as nextPageKey when there are no more pages.
   Future<(List<any>, int?)> fetch$className(int page, String? search) async {

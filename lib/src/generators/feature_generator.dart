@@ -186,6 +186,26 @@ class FeatureGenerator {
     );
   }
 
+  /// Runs `dart run build_runner build --delete-conflicting-outputs` in the [projectRoot].
+  static Future<void> runBuildRunner(String projectRoot, Logger logger) async {
+    final Progress progress = logger.progress('Running build_runner...');
+    try {
+      final ProcessResult result = await Process.run(
+        'dart',
+        <String>['run', 'build_runner', 'build', '--delete-conflicting-outputs'],
+        workingDirectory: projectRoot,
+      );
+
+      if (result.exitCode != 0) {
+        progress.fail('build_runner failed:\n${result.stderr}');
+      } else {
+        progress.complete('build_runner completed!');
+      }
+    } catch (e) {
+      progress.fail('Failed to start build_runner: $e');
+    }
+  }
+
   /// Resolves path to the bundled bricks directory.
   static Future<String> _resolveBrickPath(String brickName) async {
     // Try to resolve via package URI first (best for global/snapshot execution)

@@ -38,14 +38,7 @@ class MakeModelCommand extends Command<int> {
         Input(prompt: 'Model name (PascalCase)').interact();
 
     final String? argApi = argResults?['api'] as String?;
-    final String apiType = argApi ??
-        (Select(
-          prompt: 'API type',
-          options: <String>['graphql', 'rest'],
-          initialIndex: config.defaultApi == 'rest' ? 1 : 0,
-        ).interact() == 0
-            ? 'graphql'
-            : 'rest');
+    final String apiType = argApi ?? config.defaultApi;
 
     final Progress progress = _logger.progress('Generating Data Model...');
     try {
@@ -62,6 +55,7 @@ class MakeModelCommand extends Command<int> {
         },
       );
       progress.complete('Data Model generated!');
+      await FeatureGenerator.runBuildRunner(projectRoot, _logger);
     } catch (e) {
       progress.fail('Generation failed: $e');
       return 1;
