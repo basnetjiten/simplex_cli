@@ -6,6 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="8f0cd5f1-92d6-495f-9907-b59e0f7c562c" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bricks/feature/__brick__/lib/features/{{feature_name}}/data/sources/{{feature_name}}_remote_source_impl.dart" beforeDir="false" afterPath="$PROJECT_DIR$/bricks/feature/__brick__/lib/features/{{feature_name}}/data/sources/{{feature_name}}_remote_source_impl.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -89,16 +90,5 @@
       <updated>1774587559443</updated>
     </task>
     <servers />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="Dart">
-          <url>file://$PROJECT_DIR$/lib/src/generators/feature_generator.dart</url>
-          <line>33</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

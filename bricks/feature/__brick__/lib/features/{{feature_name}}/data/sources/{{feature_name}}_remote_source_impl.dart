@@ -1,26 +1,28 @@
 {{#use_graphql}}
 import 'package:{{package_name}}/features/{{feature_name}}/domain/sources/{{feature_name}}_source.dart';
 import 'package:injectable/injectable.dart';
-
+import 'package:ferry/ferry.dart';
+import 'package:fpdart/fpdart.dart';
 // TODO: import your Ferry TypedLink client and generated GXData types here.
 // Example:
 //   import 'package:ferry/ferry.dart';
 //   import 'package:{{package_name}}/features/{{feature_name}}/data/graphql/__generated__/...';
 
 @Injectable(as: {{feature_class}}Source)
-class {{feature_class}}RemoteSourceImpl implements {{feature_class}}Source {
-  {{feature_class}}RemoteSourceImpl(this._client);
+class {{feature_class}}RemoteSourceImpl extends SimplexGraphqlRemoteSource implements {{feature_class}}Source {
+  {{feature_class}}RemoteSourceImpl(super._graphqlClient);
 
-  // TODO: replace [dynamic] with your DI-registered Ferry TypedLink
-  final dynamic _client;
 
   @override
-  Future<dynamic> get{{feature_class}}() async {
-    // TODO: build the Ferry request and execute:
-    // final req = G{{feature_class}}QueryReq();
-    // final result = await _client.request(req).first;
-    // if (result.hasErrors) throw result.graphqlErrors!.first;
-    // return result.data!;
+  Future<Unit> get{{feature_class}}() async {
+// TODO: build the Ferry request and execute:
+// final GForgotPasswordReq forgotMutation = GForgotPasswordReq(
+//   (GForgotPasswordReqBuilder b) => b
+//     ..vars.body.deviceId = deviceId
+//     ..vars.body.email = email,
+// );
+//
+// return executeGraphqlApiCall(forgotMutation);
     throw UnimplementedError('get{{feature_class}} not implemented yet');
   }
 }
@@ -32,10 +34,9 @@ import 'package:{{package_name}}/features/{{feature_name}}/domain/sources/{{feat
 import 'package:injectable/injectable.dart';
 
 @Injectable(as: {{feature_class}}Source)
-class {{feature_class}}RemoteSourceImpl implements {{feature_class}}Source {
-  {{feature_class}}RemoteSourceImpl(this._dio);
+class {{feature_class}}RemoteSourceImpl extends SimplexRestRemoteSource implements {{feature_class}}Source {
+  {{feature_class}}RemoteSourceImpl(this._dioClient);
 
-  final Dio _dio;
 
   @override
   Future<{{feature_class}}Model> get{{feature_class}}() async {
