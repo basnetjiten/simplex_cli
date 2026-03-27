@@ -1,0 +1,37 @@
+name: feature
+description: Generates a Simplex Clean Architecture feature module for Flutter.
+version: 0.1.0+1
+
+vars:
+  feature_name:
+    type: string
+    description: Feature name in snake_case (e.g. product_detail)
+    prompt: Feature name (snake_case)
+
+  feature_class:
+    type: string
+    description: Feature class prefix in PascalCase (e.g. ProductDetail)
+    prompt: Feature class name (PascalCase)
+
+  package_name:
+    type: string
+    description: Dart package name used in import paths
+    prompt: Package name
+
+  use_graphql:
+    type: boolean
+    description: Use GraphQL (ferry) for the data source
+    prompt: Use GraphQL?
+    default: true
+
+  use_paging:
+    type: boolean
+    description: Enable PagingCubit for paginated list support
+    prompt: Enable pagination?
+    default: false
+
+  generate_tests:
+    type: boolean
+    description: Generate test stub files
+    prompt: Generate tests?
+    default: true

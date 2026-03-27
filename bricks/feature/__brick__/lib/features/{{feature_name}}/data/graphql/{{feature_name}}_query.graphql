@@ -1,0 +1,20 @@
+# Write your GraphQL operation here.
+# This is a stub — replace with your actual query or mutation.
+#
+# Example query:
+#
+# query Get{{feature_class}} {
+#   {{feature_name}} {
+#     id
+#     # add fields
+#   }
+# }
+#
+# After filling in the query, run:
+#   get-graphql-schema <GRAPHQL_ENDPOINT> > lib/graphql/schema.graphql
+#   dart run build_runner build --delete-conflicting-outputs
+
+query Get{{feature_class}} {
+  # TODO: implement
+  placeholder
+}

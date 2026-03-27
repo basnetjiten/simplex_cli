@@ -1,0 +1,177 @@
+import 'dart:io';
+
+import 'package:mason/mason.dart';
+import 'package:path/path.dart' as p;
+import 'package:simplex_cli/src/config/simplex_config.dart';
+
+/// Orchestrates Mason brick generation for feature modules.
+class FeatureGenerator {
+  /// Generates a full feature module using the bundled 'feature' Mason brick.
+  static Future<void> generate({
+    required String projectRoot,
+    required SimplexConfig config,
+    required String featureName,
+    required String featureClass,
+    required String apiType,
+    required bool usePaging,
+    required bool generateTests,
+  }) async {
+    final String brickPath = _resolveBrickPath();
+    final Brick brick = Brick.path(brickPath);
+    final MasonGenerator generator = await MasonGenerator.fromBrick(brick);
+
+    final DirectoryGeneratorTarget target = DirectoryGeneratorTarget(
+      Directory(projectRoot),
+    );
+
+    final Map<String, dynamic> vars = <String, dynamic>{
+      'feature_name': featureName,
+      'feature_class': featureClass,
+      'package_name': config.packageName,
+      'use_graphql': apiType == 'graphql',
+      'use_paging': usePaging,
+      'generate_tests': generateTests,
+    };
+
+    await generator.generate(
+      target,
+      vars: vars,
+      logger: Logger(),
+      fileConflictResolution: FileConflictResolution.overwrite,
+    );
+
+    // If generate_tests is false, remove the test stubs that were generated
+    if (!generateTests) {
+      final String testFeatureDir = p.join(projectRoot, config.testPath, featureName);
+      final Directory testDir = Directory(testFeatureDir);
+      if (testDir.existsSync()) {
+        testDir.deleteSync(recursive: true);
+      }
+    }
+
+    // If REST, remove the graphql stub folder that the brick always creates
+    if (apiType == 'rest') {
+      final String graphqlDir = p.join(
+        projectRoot,
+        config.featuresPath,
+        featureName,
+        'data',
+        'graphql',
+      );
+      final Directory dir = Directory(graphqlDir);
+      if (dir.existsSync()) {
+        dir.deleteSync(recursive: true);
+      }
+    }
+  }
+
+  /// Converts the data layer of [featureName] to [targetApi] (graphql or rest).
+  /// Only overwrites data/sources/ and data/repositories/ impl files.
+  static Future<void> convertDataLayer({
+    required String projectRoot,
+    required SimplexConfig config,
+    required String featureName,
+    required String featureClass,
+    required String targetApi,
+    required bool usePaging,
+    required bool dryRun,
+    required Logger logger,
+  }) async {
+    final String brickPath = _resolveBrickPath();
+    final Brick brick = Brick.path(brickPath);
+    final MasonGenerator generator = await MasonGenerator.fromBrick(brick);
+
+    // We generate to a temp directory, then selectively copy only data layer impls.
+    final Directory tempDir = Directory.systemTemp.createTempSync('simplex_convert_');
+
+    try {
+      final DirectoryGeneratorTarget tempTarget = DirectoryGeneratorTarget(tempDir);
+
+      final Map<String, dynamic> vars = <String, dynamic>{
+        'feature_name': featureName,
+        'feature_class': featureClass,
+        'package_name': config.packageName,
+        'use_graphql': targetApi == 'graphql',
+        'use_paging': usePaging,
+        'generate_tests': false,
+      };
+
+      await generator.generate(
+        tempTarget,
+        vars: vars,
+        logger: Logger(),
+        fileConflictResolution: FileConflictResolution.overwrite,
+      );
+
+      // Files to copy from temp → real project (data layer impls only)
+      final List<String> relativePathsToConvert = <String>[
+        p.join('lib', 'features', featureName, 'data', 'sources', '${featureName}_remote_source_impl.dart'),
+        p.join('lib', 'features', featureName, 'data', 'repositories', '${featureName}_repository_impl.dart'),
+      ];
+
+      // Handle graphql stub folder
+      final String graphqlRelDir = p.join('lib', 'features', featureName, 'data', 'graphql');
+      final String graphqlDest = p.join(projectRoot, graphqlRelDir);
+
+      for (final String relPath in relativePathsToConvert) {
+        final File srcFile = File(p.join(tempDir.path, relPath));
+        final File destFile = File(p.join(projectRoot, relPath));
+
+        if (dryRun) {
+          logger.info('  ${destFile.path}');
+          continue;
+        }
+
+        destFile.parent.createSync(recursive: true);
+        srcFile.copySync(destFile.path);
+      }
+
+      if (!dryRun) {
+        if (targetApi == 'graphql') {
+          // Ensure graphql stub folder exists
+          final String graphqlStub = p.join(tempDir.path, graphqlRelDir, '${featureName}_query.graphql');
+          if (File(graphqlStub).existsSync()) {
+            Directory(graphqlDest).createSync(recursive: true);
+            File(graphqlStub).copySync(p.join(graphqlDest, '${featureName}_query.graphql'));
+          }
+        } else {
+          // Remove graphql folder when converting to REST
+          final Directory dir = Directory(graphqlDest);
+          if (dir.existsSync()) {
+            dir.deleteSync(recursive: true);
+          }
+        }
+      } else {
+        if (targetApi == 'graphql') {
+          logger.info('  $graphqlDest/${featureName}_query.graphql (ADD)');
+        } else {
+          logger.info('  $graphqlDest/ (REMOVE)');
+        }
+      }
+    } finally {
+      tempDir.deleteSync(recursive: true);
+    }
+  }
+
+  /// Resolves path to the bundled bricks directory.
+  static String _resolveBrickPath() {
+    // When installed via pub global, the package root is accessible via Platform.script.
+    // The brick lives relative to the package root.
+    final String scriptDir = p.dirname(Platform.script.toFilePath());
+    // Try: bin/../bricks/feature (typical activation layout)
+    final String candidate = p.normalize(p.join(scriptDir, '..', 'bricks', 'feature'));
+    if (Directory(candidate).existsSync()) {
+      return candidate;
+    }
+    // Fallback: relative to CWD (for local dev)
+    return p.join(Directory.current.path, 'bricks', 'feature');
+  }
+
+  // Load bundle is no longer needed as we use fromBrick directly
+  /*
+  static Future<MasonBundle> _loadBundle(String brickPath) async {
+    final Brick brick = Brick.path(brickPath);
+    return createBundle(brick);
+  }
+  */
+}
