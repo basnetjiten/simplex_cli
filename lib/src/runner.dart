@@ -13,7 +13,15 @@ class SimplexRunner {
 
     final CommandRunner<int> runner = CommandRunner<int>(
       'simplex',
-      'A CLI tool to scaffold Clean Architecture feature modules for Flutter Simplex projects.',
+      'Scaffold Clean Architecture modules for Flutter.\n\n'
+      'COMMANDS:\n'
+      '  init              | simplex init\n'
+      '  make feature      | simplex make feature -n login\n'
+      '  make cubit        | simplex make cubit -f products -n List --paging\n'
+      '  make model        | simplex make model -f products -n User\n'
+      '  make page         | simplex make page -f products -n Settings\n'
+      '  add paging        | simplex add paging -f products -n List\n'
+      '  convert           | simplex convert login --to rest',
     )
       ..addCommand(InitCommand(logger: logger))
       ..addCommand(MakeCommand(logger: logger))

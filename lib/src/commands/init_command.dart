@@ -44,8 +44,7 @@ class InitCommand extends Command<int> {
 
   @override
   String get description =>
-      'Configure simplex_cli for the project (optional).\n'
-      'Example: simplex init';
+      'Configure simplex_cli (e.g. simplex init)';
 
   @override
   Future<int> run() async {

@@ -14,8 +14,7 @@ class AddCommand extends Command<int> {
 
   @override
   String get description =>
-      'Interactive tools to add or inject logic into existing components.\n'
-      'Example: simplex add paging -f products -n ProductList';
+      'Inject logic into components (e.g. simplex add paging -f products)';
 
   @override
   Future<int> run() async {

@@ -20,8 +20,8 @@ class MakeModelCommand extends Command<int> {
 
   @override
   String get description =>
-      'Create a new Data Model, Source, and Repository.\n'
-      'Example: simplex make model -f auth -n Profile --api rest';
+      'Create a new Data Model inside a feature\'s data/models folder.\n'
+      'Example: simplex make model -f auth -n Profile';
 
   @override
   Future<int> run() async {
@@ -54,8 +54,10 @@ class MakeModelCommand extends Command<int> {
         config: config,
         brickName: 'model',
         featureName: featureName,
-        featureClass: toUpperCamelCase(featureClass),
+        featureClass: '', // Not used in this brick anymore
         additionalVars: <String, dynamic>{
+          'model_name': snakeCase(featureClass),
+          'model_class': toUpperCamelCase(featureClass),
           'use_graphql': apiType == 'graphql',
         },
       );
