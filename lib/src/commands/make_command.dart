@@ -19,7 +19,7 @@ class MakeCommand extends Command<int> {
   String get name => 'make';
 
   @override
-  String get description => 'Generate files from templates (e.g. feature modules).';
+  String get description => 'A suite of commands for scaffolding feature modules and components.';
 
   @override
   Future<int> run() async {

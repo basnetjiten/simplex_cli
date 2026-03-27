@@ -10,8 +10,8 @@ import 'package:simplex_cli/src/utils/case_utils.dart';
 class AddPagingCommand extends Command<int> {
   AddPagingCommand({required Logger logger}) : _logger = logger {
     argParser
-      ..addOption('feature', abbr: 'f', help: 'Feature name in snake_case.')
-      ..addOption('name', abbr: 'n', help: 'Cubit name (PascalCase).');
+      ..addOption('feature', abbr: 'f', help: 'The feature folder containing the cubit.')
+      ..addOption('name', abbr: 'n', help: 'The name of the cubit class to modify (PascalCase).');
   }
 
   final Logger _logger;

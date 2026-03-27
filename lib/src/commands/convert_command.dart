@@ -12,14 +12,15 @@ class ConvertCommand extends Command<int> {
     argParser
       ..addOption(
         'to',
-        help: 'Target API type to convert the feature to.',
+        abbr: 't',
+        help: 'Target API implementation type.',
         allowed: <String>['graphql', 'rest'],
         mandatory: true,
       )
       ..addFlag(
         'dry-run',
         abbr: 'd',
-        help: 'Preview changes without writing any files.',
+        help: 'Preview the files to be modified without writing changes.',
         negatable: false,
       );
   }
@@ -30,9 +31,7 @@ class ConvertCommand extends Command<int> {
   String get name => 'convert';
 
   @override
-  String get description =>
-      'Convert an existing feature between GraphQL and REST data sources.\n'
-      'Usage: simplex convert <feature_name> --to [graphql|rest]';
+  String get description => 'Convert a feature\'s data layer between GraphQL and REST implementations.';
 
   @override
   Future<int> run() async {

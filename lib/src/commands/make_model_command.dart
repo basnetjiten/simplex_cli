@@ -8,9 +8,9 @@ import 'package:simplex_cli/src/utils/case_utils.dart';
 class MakeModelCommand extends Command<int> {
   MakeModelCommand({required Logger logger}) : _logger = logger {
     argParser
-      ..addOption('feature', abbr: 'f', help: 'Feature name in snake_case.')
-      ..addOption('name', abbr: 'n', help: 'Model name (PascalCase).')
-      ..addOption('api', help: 'API type (graphql/rest).');
+      ..addOption('feature', abbr: 'f', help: 'The target feature folder (snake_case).')
+      ..addOption('name', abbr: 'n', help: 'The model name (PascalCase, e.g. User).')
+      ..addOption('api', abbr: 'a', help: 'Implementation type (graphql/rest).');
   }
 
   final Logger _logger;

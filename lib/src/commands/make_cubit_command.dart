@@ -10,9 +10,9 @@ import 'package:simplex_cli/src/utils/case_utils.dart';
 class MakeCubitCommand extends Command<int> {
   MakeCubitCommand({required Logger logger}) : _logger = logger {
     argParser
-      ..addOption('feature', abbr: 'f', help: 'Feature name in snake_case.')
-      ..addOption('name', abbr: 'n', help: 'Cubit name (PascalCase).')
-      ..addFlag('paging', help: 'Enable PagingCubit support.', defaultsTo: null);
+      ..addOption('feature', abbr: 'f', help: 'Target feature folder (snake_case).')
+      ..addOption('name', abbr: 'n', help: 'Cubit name (PascalCase, e.g. Auth).')
+      ..addFlag('paging', help: 'Add PagingCubit boilerplate to the new cubit.', defaultsTo: null);
   }
 
   final Logger _logger;

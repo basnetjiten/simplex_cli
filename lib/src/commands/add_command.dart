@@ -13,7 +13,7 @@ class AddCommand extends Command<int> {
   String get name => 'add';
 
   @override
-  String get description => 'Add features or methods to existing components.';
+  String get description => 'Interactive tools to add or inject logic into existing components.';
 
   @override
   Future<int> run() async {

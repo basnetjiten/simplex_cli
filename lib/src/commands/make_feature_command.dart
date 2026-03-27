@@ -11,14 +11,15 @@ import 'package:simplex_cli/src/utils/case_utils.dart';
 class MakeFeatureCommand extends Command<int> {
   MakeFeatureCommand({required Logger logger}) : _logger = logger {
     argParser
-      ..addOption('name', abbr: 'n', help: 'Feature name in snake_case (e.g. product_detail).')
+      ..addOption('name', abbr: 'n', help: 'Feature name in snake_case (e.g. login).')
       ..addOption(
         'api',
-        help: 'API type for this feature.',
+        abbr: 'a',
+        help: 'Implementation type for the data layer.',
         allowed: <String>['graphql', 'rest'],
       )
-      ..addFlag('paging', help: 'Enable PagingCubit for this feature.', defaultsTo: null)
-      ..addFlag('tests', help: 'Generate test stubs.', defaultsTo: null);
+      ..addFlag('paging', help: 'Initialize the feature with PagingCubit support.')
+      ..addFlag('tests', help: 'Generate placeholder test files.', defaultsTo: true);
   }
 
   final Logger _logger;
@@ -27,7 +28,7 @@ class MakeFeatureCommand extends Command<int> {
   String get name => 'feature';
 
   @override
-  String get description => 'Scaffold a new Clean Architecture feature module.';
+  String get description => 'Scaffold a complete feature module (data, domain, and presentation).';
 
   @override
   Future<int> run() async {

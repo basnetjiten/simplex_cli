@@ -5,8 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8f0cd5f1-92d6-495f-9907-b59e0f7c562c" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bricks/feature/__brick__/lib/features/{{feature_name}}/data/sources/{{feature_name}}_remote_source_impl.dart" beforeDir="false" afterPath="$PROJECT_DIR$/bricks/feature/__brick__/lib/features/{{feature_name}}/data/sources/{{feature_name}}_remote_source_impl.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bricks/feature/__brick__/lib/features/{{feature_name}}/presentation/pages/{{feature_name}}_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/bricks/feature/__brick__/lib/features/{{feature_name}}/presentation/pages/{{feature_name}}_page.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -81,6 +81,14 @@
     "show.migrate.to.gradle.popup": "false"
   }
 }]]></component>
+  <component name="RunManager">
+    <configuration default="true" type="AppleRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" IS_LOCATION_SIMULATION_SUPPORTED="false" IS_LOCATION_SIMULATION_ALLOWED="true" APPLICATION_LANGUAGE="IDELaunchSchemeLanguageUseSystemLanguage" APPLICATION_REGION="" DEVELOPMENT_TEAM="${TEAM_ID}" MAKE_ACTIVE="TRUE" SHOULD_DEBUG_EXTENSIONS="false">
+      <embedded_app_extension_list />
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="8f0cd5f1-92d6-495f-9907-b59e0f7c562c" name="Changes" comment="" />

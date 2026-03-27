@@ -76,13 +76,15 @@ class _{{feature_class}}PageState extends State<{{feature_class}}Page> {
         ),
         body: BlocBuilder<{{feature_class}}Cubit, {{feature_class}}State>(
           builder: (BuildContext context, {{feature_class}}State state) {
-            return state.status.when(
+            return state.status.maybeWhen(
               initial: () => const SizedBox.shrink(),
               loading: () => const Center(child: CircularProgressIndicator()),
-              success: () => const Center(child: Text('{{feature_class}} Page Content')),
+              success: (String? message) =>
+                  const Center(child: Text('{{feature_class}} Page Content')),
               error: (String? message) => Center(
                 child: Text(message ?? 'An error occurred'),
               ),
+              orElse: () => const Center(child: CircularProgressIndicator()),
             );
           },
         ),

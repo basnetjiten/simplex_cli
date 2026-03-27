@@ -10,9 +10,9 @@ import 'package:simplex_cli/src/utils/case_utils.dart';
 class MakePageCommand extends Command<int> {
   MakePageCommand({required Logger logger}) : _logger = logger {
     argParser
-      ..addOption('feature', abbr: 'f', help: 'Feature name in snake_case.')
-      ..addOption('name', abbr: 'n', help: 'Page name (PascalCase).')
-      ..addFlag('paging', help: 'Enable pagination support.', defaultsTo: null);
+      ..addOption('feature', abbr: 'f', help: 'The target feature folder (snake_case).')
+      ..addOption('name', abbr: 'n', help: 'The page name (PascalCase, e.g. Settings).')
+      ..addFlag('paging', help: 'Add PagingCubit boilerplate to the new page.', defaultsTo: null);
   }
 
   final Logger _logger;
