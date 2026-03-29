@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:args/command_runner.dart';
 import 'package:interact/interact.dart';
 import 'package:path/path.dart' as p;
 import 'package:simplex_cli/src/config/simplex_config.dart';
@@ -6,7 +7,8 @@ import 'package:simplex_cli/src/config/simplex_config.dart';
 /// Resolves the feature name from:
 /// 1. Explicit argument
 /// 2. Current working directory (if inside a feature subfolder)
-/// 3. Interactive prompt (if fallback allowed)
+/// 3. The ONLY existing feature (if unique and non-interactive)
+/// 4. Interactive prompt (if fallback allowed)
 String resolveFeatureName({
   required SimplexConfig config,
   required String projectRoot,
@@ -26,8 +28,9 @@ String resolveFeatureName({
     }
   }
 
+  final List<String> availableFeatures = config.features.keys.toList();
+
   if (interactive) {
-    final List<String> availableFeatures = config.features.keys.toList();
     if (availableFeatures.isEmpty) {
       return Input(prompt: 'Feature name (snake_case)').interact();
     }
@@ -37,7 +40,16 @@ String resolveFeatureName({
     ).interact().let((index) => availableFeatures[index]);
   }
 
-  throw StateError('Feature name could not be inferred and interaction is disabled.');
+  // Non-interactive fallback: if there is exactly ONE feature, use it.
+  if (availableFeatures.length == 1) {
+    return availableFeatures.first;
+  }
+
+  throw UsageException(
+    'Feature name could not be inferred and interaction is disabled.\n'
+    'Please provide the --feature flag or run from within a feature directory.',
+    'simplex <command> --feature <name>',
+  );
 }
 
 extension Let<T> on T {
