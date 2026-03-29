@@ -3,6 +3,7 @@
 
 import 'package:{{package_name}}/features/{{feature_name}}/domain/repositories/{{repo_name}}_repository.dart';
 import 'package:{{package_name}}/features/{{feature_name}}/domain/sources/{{repo_name}}_remote_source.dart';
+import 'package:{{package_name}}/features/{{feature_name}}/data/models/{{repo_name}}_model.dart';
 import 'package:injectable/injectable.dart';
 import 'package:simplex/base/simplex_base_repository.dart';
 import 'package:simplex/typedefs/typedefs.dart';
@@ -15,7 +16,7 @@ class {{repo_class}}RepositoryImpl extends SimplexBaseRepository
   final {{repo_class}}RemoteSource _{{repo_name}}RemoteSource;
 
   @override
-  EitherResponse<dynamic> get{{repo_class}}() => processApiCall(
+  EitherResponse<{{repo_name}}Model> get{{repo_class}}() => processApiCall(
         call: _{{repo_name}}RemoteSource.get{{repo_class}}(),
         onSuccess: (dynamic data) => data,
       );
