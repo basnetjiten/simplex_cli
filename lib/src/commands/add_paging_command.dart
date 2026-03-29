@@ -78,7 +78,7 @@ class AddPagingCommand extends Command<int> {
         featureClass: toUpperCamelCase(featureName),
         apiType: featureConfig.api,
         usePaging: true,
-        generateTests: true, // Re-generate tests with paging support
+        generateTests: false, // Don't re-generate tests by default
       );
 
       // Update simplex.yaml
