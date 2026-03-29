@@ -1,10 +1,7 @@
 /// Converts snake_case to UpperCamelCase (PascalCase).
 /// Example: 'product_detail' → 'ProductDetail'
 String toUpperCamelCase(String input) {
-  return input
-      .split('_')
-      .map((String word) => word.isEmpty ? '' : word[0].toUpperCase() + word.substring(1))
-      .join();
+  return input.split('_').map((String word) => word.isEmpty ? '' : word[0].toUpperCase() + word.substring(1)).join();
 }
 
 /// Converts snake_case to lowerCamelCase.

@@ -22,8 +22,7 @@ class MakeBlocCommand extends Command<int> {
   String get name => 'make:bloc';
 
   @override
-  String get description =>
-      'Create a flutter_bloc Bloc (with Event + State) for a feature.\n'
+  String get description => 'Create a flutter_bloc Bloc (with Event + State) for a feature.\n'
       'Example: simplex make:bloc Auth\n'
       'Path-aware: run from inside a feature folder to skip the feature prompt.';
 
@@ -41,10 +40,11 @@ class MakeBlocCommand extends Command<int> {
       return 1;
     }
 
+    final bool isInteractive = globalResults?['interactive'] as bool? ?? true;
+
     // ── Resolve name (positional) ────────────────────────────────────────────
     // Name must be snake_case — the generated class will be PascalCase.
-    bool isSnakeCase(String v) =>
-        RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(v.trim());
+    bool isSnakeCase(String v) => RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(v.trim());
 
     String rawName;
     if (argResults!.rest.isNotEmpty) {
@@ -56,7 +56,7 @@ class MakeBlocCommand extends Command<int> {
         );
         return 1;
       }
-    } else {
+    } else if (isInteractive) {
       rawName = Input(
         prompt: 'Bloc name (snake_case, e.g. nurse_profile)',
         validator: (String val) {
@@ -65,6 +65,11 @@ class MakeBlocCommand extends Command<int> {
           return true;
         },
       ).interact().trim();
+    } else {
+      throw UsageException(
+        'Bloc name is required as a positional argument in non-interactive mode.',
+        usage,
+      );
     }
 
     final String blocClass = toUpperCamelCase(rawName);
@@ -75,6 +80,7 @@ class MakeBlocCommand extends Command<int> {
       config: config,
       projectRoot: projectRoot,
       argValue: argResults?['feature'] as String?,
+      interactive: isInteractive,
     );
 
     _logger.info('');

@@ -14,6 +14,7 @@ String resolveFeatureName({
   required SimplexConfig config,
   required String projectRoot,
   String? argValue,
+  bool interactive = true,
 }) {
   // 1. Explicit value wins immediately
   if (argValue != null && argValue.trim().isNotEmpty) {
@@ -24,6 +25,10 @@ String resolveFeatureName({
   final String? inferred = _inferFromCwd(projectRoot, config);
   if (inferred != null) {
     return inferred;
+  }
+
+  if (!interactive) {
+    throw StateError('Feature name is required as a positional argument in non-interactive mode.');
   }
 
   // 3. Registered features → Select prompt
@@ -39,8 +44,7 @@ String resolveFeatureName({
   // 4. Free-form input
   return Input(
     prompt: 'Feature name (snake_case)',
-    validator: (String val) =>
-        val.trim().isNotEmpty && RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(val.trim()),
+    validator: (String val) => val.trim().isNotEmpty && RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(val.trim()),
   ).interact().trim();
 }
 

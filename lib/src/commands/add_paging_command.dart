@@ -21,8 +21,7 @@ class AddPagingCommand extends Command<int> {
   String get name => 'paging';
 
   @override
-  String get description =>
-      'Add Simplex pagination method to an existing Cubit.\n'
+  String get description => 'Add Simplex pagination method to an existing Cubit.\n'
       'Example: simplex add paging -f products -n List';
 
   @override
@@ -39,11 +38,31 @@ class AddPagingCommand extends Command<int> {
       return 1;
     }
 
-    final String featureName = argResults?['feature'] as String? ??
-        Input(prompt: 'Feature name (snake_case)').interact();
+    final bool isInteractive = globalResults?['interactive'] as bool? ?? true;
 
-    final String cubitName = argResults?['name'] as String? ??
-        Input(prompt: 'Cubit name (PascalCase)').interact();
+    final String featureName;
+    if (argResults?['feature'] != null) {
+      featureName = argResults!['feature'] as String;
+    } else if (isInteractive) {
+      featureName = Input(prompt: 'Feature name (snake_case)').interact();
+    } else {
+      throw UsageException(
+        'Feature name is required as an option (--feature) in non-interactive mode.',
+        usage,
+      );
+    }
+
+    final String cubitName;
+    if (argResults?['name'] != null) {
+      cubitName = argResults!['name'] as String;
+    } else if (isInteractive) {
+      cubitName = Input(prompt: 'Cubit name (PascalCase)').interact();
+    } else {
+      throw UsageException(
+        'Cubit name is required as an option (--name) in non-interactive mode.',
+        usage,
+      );
+    }
 
     final String className = toUpperCamelCase(cubitName);
     final String fileName = '${snakeCase(cubitName)}_cubit.dart';
@@ -71,8 +90,12 @@ class AddPagingCommand extends Command<int> {
 
     if (content.contains('Future<(List<')) {
       _logger.warn('Cubit already appears to have a pagination method.');
-      if (!Confirm(prompt: 'Do you want to overwrite or add another?').interact()) {
-        return 0;
+      if (isInteractive) {
+        if (!Confirm(prompt: 'Do you want to overwrite or add another?').interact()) {
+          return 0;
+        }
+      } else {
+        _logger.info('Non-interactive mode: Overwriting existing pagination method.');
       }
     }
 
@@ -82,7 +105,7 @@ class AddPagingCommand extends Command<int> {
       final String updatedContent = _injectPagingMethod(content, className);
       cubitFile.writeAsStringSync(updatedContent);
       progress.complete('Pagination method added to ${p.basename(cubitFile.path)}!');
-      
+
       _logger.info('');
       _logger.info('Note: Make sure to add needed imports if not present:');
       _logger.info('  import \'package:fpdart/fpdart.dart\';');
@@ -94,6 +117,7 @@ class AddPagingCommand extends Command<int> {
 
     return 0;
   }
+
   String _injectPagingMethod(String content, String className) {
     final List<String> classNameCandidates = <String>[
       className,

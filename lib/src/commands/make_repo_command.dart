@@ -40,8 +40,7 @@ class MakeRepoCommand extends Command<int> {
   String get name => 'make:repo';
 
   @override
-  String get description =>
-      'Create a repository interface (domain/) and/or concrete implementation (data/).\n'
+  String get description => 'Create a repository interface (domain/) and/or concrete implementation (data/).\n'
       'Example: simplex make:repo user_profile\n'
       '         simplex make:repo user_profile -a (interface only)\n'
       'Path-aware: run from inside a feature folder to skip the feature prompt.';
@@ -70,9 +69,10 @@ class MakeRepoCommand extends Command<int> {
       return 1;
     }
 
+    final bool isInteractive = globalResults?['interactive'] as bool? ?? true;
+
     // ── Resolve name (positional) ────────────────────────────────────────────
-    bool isSnakeCase(String v) =>
-        RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(v.trim());
+    bool isSnakeCase(String v) => RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(v.trim());
 
     String rawName;
     if (argResults!.rest.isNotEmpty) {
@@ -84,7 +84,7 @@ class MakeRepoCommand extends Command<int> {
         );
         return 1;
       }
-    } else {
+    } else if (isInteractive) {
       rawName = Input(
         prompt: 'Repository name (snake_case, e.g. user_profile)',
         validator: (String val) {
@@ -93,6 +93,11 @@ class MakeRepoCommand extends Command<int> {
           return true;
         },
       ).interact().trim();
+    } else {
+      throw UsageException(
+        'Repository name is required as a positional argument in non-interactive mode.',
+        usage,
+      );
     }
 
     final String repoClass = toUpperCamelCase(rawName);
@@ -103,6 +108,7 @@ class MakeRepoCommand extends Command<int> {
       config: config,
       projectRoot: projectRoot,
       argValue: argResults?['feature'] as String?,
+      interactive: isInteractive,
     );
 
     final String apiType = argResults?['api'] as String? ?? config.defaultApi;
@@ -127,7 +133,8 @@ class MakeRepoCommand extends Command<int> {
     _logger.info('  Feature    : ${cyan.wrap(featureName)}');
     _logger.info('  Repository : ${cyan.wrap('${repoClass}Repository')}');
     _logger.info('  API        : ${cyan.wrap(apiType)}');
-    _logger.info('  Scope      : ${createAbstract && createImpl ? "Both" : (createAbstract ? "Abstract Only" : "Implementation Only")}');
+    _logger.info(
+        '  Scope      : ${createAbstract && createImpl ? "Both" : (createAbstract ? "Abstract Only" : "Implementation Only")}');
     _logger.info('');
 
     final Progress progress = _logger.progress('Generating Repository...');

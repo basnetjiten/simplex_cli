@@ -32,8 +32,7 @@ class ConvertCommand extends Command<int> {
   String get name => 'convert';
 
   @override
-  String get description =>
-      'Convert feature data layers (e.g. simplex convert login --to rest)';
+  String get description => 'Convert feature data layers (e.g. simplex convert login --to rest)';
 
   @override
   Future<int> run() async {
@@ -83,6 +82,8 @@ class ConvertCommand extends Command<int> {
     _logger.info('  To      : $targetApi');
     _logger.info('');
 
+    final bool isInteractive = globalResults?['interactive'] as bool? ?? true;
+
     if (dryRun) {
       _logger.info(yellow.wrap('🔍  Dry run — no files will be written')!);
       _logger.info('');
@@ -91,20 +92,23 @@ class ConvertCommand extends Command<int> {
       _logger.warn(
         "⚠️  This will overwrite the data/sources/ and data/repositories/ impl files for '$featureName'.",
       );
-      final bool confirmed = Confirm(
-        prompt: 'Continue?',
-        defaultValue: false,
-      ).interact();
-      if (!confirmed) {
-        _logger.info('Cancelled.');
-        return 0;
+      if (isInteractive) {
+        final bool confirmed = Confirm(
+          prompt: 'Continue?',
+          defaultValue: false,
+        ).interact();
+        if (!confirmed) {
+          _logger.info('Cancelled.');
+          return 0;
+        }
+      } else {
+        _logger.info('Non-interactive mode: Proceeding with conversion.');
       }
     }
 
     // ── Convert (overwrite only data layer impl files) ─────────────────────
-    final Progress progress = dryRun
-        ? _logger.progress('Previewing changes...')
-        : _logger.progress('Converting $featureName to $targetApi...');
+    final Progress progress =
+        dryRun ? _logger.progress('Previewing changes...') : _logger.progress('Converting $featureName to $targetApi...');
 
     try {
       await FeatureGenerator.convertDataLayer(
@@ -130,9 +134,8 @@ class ConvertCommand extends Command<int> {
     }
 
     // ── Update feature registry ────────────────────────────────────────────
-    final Map<String, FeatureConfig> updatedFeatures =
-        Map<String, FeatureConfig>.from(config.features)
-          ..[featureName] = FeatureConfig(api: targetApi, paging: usePaging);
+    final Map<String, FeatureConfig> updatedFeatures = Map<String, FeatureConfig>.from(config.features)
+      ..[featureName] = FeatureConfig(api: targetApi, paging: usePaging);
     saveConfig(projectRoot, config.copyWith(features: updatedFeatures));
 
     _logger.info('');
@@ -143,9 +146,6 @@ class ConvertCommand extends Command<int> {
   }
 
   String _toUpperCamelCase(String input) {
-    return input
-        .split('_')
-        .map((String word) => word.isEmpty ? '' : word[0].toUpperCase() + word.substring(1))
-        .join();
+    return input.split('_').map((String word) => word.isEmpty ? '' : word[0].toUpperCase() + word.substring(1)).join();
   }
 }

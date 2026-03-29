@@ -67,7 +67,13 @@ class SimplexRunner {
       final CommandRunner<int> runner = CommandRunner<int>(
         'simplex',
         cmd.description,
-      )..addCommand(cmd);
+      )
+        ..argParser.addFlag(
+          'interactive',
+          defaultsTo: true,
+          help: 'Enable or disable interactive prompts.',
+        )
+        ..addCommand(cmd);
 
       try {
         // Re-map "make:cubit Auth" → "make:cubit Auth" (command name as-is)
@@ -90,6 +96,11 @@ class SimplexRunner {
       'simplex',
       'Scaffold Clean Architecture modules for Flutter.',
     )
+      ..argParser.addFlag(
+        'interactive',
+        defaultsTo: true,
+        help: 'Enable or disable interactive prompts.',
+      )
       ..addCommand(InitCommand(logger: logger))
       ..addCommand(ConvertCommand(logger: logger))
       ..addCommand(AddCommand(logger: logger));
