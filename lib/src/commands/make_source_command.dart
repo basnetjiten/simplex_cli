@@ -17,20 +17,13 @@ class MakeSourceCommand extends Command<int> {
       )
       ..addFlag(
         'abstract-only',
-        abbr: 'a',
-        help: 'Generate only the remote source interface (domain/).',
+        help: 'Only generate the abstract interface in domain.',
         negatable: false,
       )
       ..addFlag(
         'impl-only',
-        abbr: 'i',
-        help: 'Generate only the remote source implementation (data/).',
+        help: 'Only generate the implementation in data.',
         negatable: false,
-      )
-      ..addOption(
-        'api',
-        help: 'API type for the implementation stub (graphql/rest).',
-        allowed: <String>['graphql', 'rest'],
       );
   }
 
@@ -40,9 +33,8 @@ class MakeSourceCommand extends Command<int> {
   String get name => 'make:source';
 
   @override
-  String get description => 'Create a remote source interface (domain/) and/or concrete implementation (data/).\n'
+  String get description => 'Create a remote data source (abstract + impl) for a feature.\n'
       'Example: simplex make:source auth\n'
-      '         simplex make:source user -a (interface only)\n'
       'Path-aware: run from inside a feature folder to skip the feature prompt.';
 
   @override
@@ -65,27 +57,11 @@ class MakeSourceCommand extends Command<int> {
         : config.interactive;
 
     // ── Resolve name (positional) ────────────────────────────────────────────
-    bool isSnakeCase(String v) => RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(v.trim());
-
     String rawName;
     if (argResults!.rest.isNotEmpty) {
-      rawName = argResults!.rest.first.trim();
-      if (!isSnakeCase(rawName)) {
-        _logger.err(
-          "'$rawName' is not snake_case. "
-          'Please use snake_case for the source name (e.g. auth_remote_source).',
-        );
-        return 1;
-      }
+      rawName = argResults!.rest.first;
     } else if (isInteractive) {
-      rawName = Input(
-        prompt: 'Source name (snake_case, e.g. auth)',
-        validator: (String val) {
-          if (val.trim().isEmpty) return false;
-          if (!RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(val.trim())) return false;
-          return true;
-        },
-      ).interact().trim();
+      rawName = Input(prompt: 'Source name (snake_case, e.g. auth)').interact();
     } else {
       throw UsageException(
         'Source name is required as a positional argument in non-interactive mode.',
@@ -93,8 +69,8 @@ class MakeSourceCommand extends Command<int> {
       );
     }
 
-    final String sourceClass = toUpperCamelCase(rawName);
-    final String sourceSnake = rawName;
+    final String sourceSnake = snakeCase(rawName);
+    final String sourceClass = toUpperCamelCase(sourceSnake);
 
     // ── Resolve feature (path-aware) ─────────────────────────────────────────
     final String featureName = resolveFeatureName(
@@ -104,30 +80,22 @@ class MakeSourceCommand extends Command<int> {
       interactive: isInteractive,
     );
 
-    final String apiType = argResults?['api'] as String? ?? config.defaultApi;
+    final bool abstractOnly = argResults?['abstract-only'] as bool? ?? false;
+    final bool implOnly = argResults?['impl-only'] as bool? ?? false;
 
-    // ── Resolve generation flags ─────────────────────────────────────────────
-    final bool abstractOnly = argResults!['abstract-only'] as bool;
-    final bool implOnly = argResults!['impl-only'] as bool;
-
-    bool createAbstract = true;
-    bool createImpl = true;
-
-    if (abstractOnly) {
-      createAbstract = true;
-      createImpl = false;
-    } else if (implOnly) {
-      createAbstract = false;
-      createImpl = true;
+    if (abstractOnly && implOnly) {
+      _logger.err('Cannot use both --abstract-only and --impl-only.');
+      return 1;
     }
+
+    final bool createAbstract = !implOnly;
+    final bool createImpl = !abstractOnly;
 
     _logger.info('');
     _logger.info(lightCyan.wrap('✨  Simplex — make:source')!);
     _logger.info('  Feature : ${cyan.wrap(featureName)}');
-    _logger.info('  Source  : ${cyan.wrap('${sourceClass}RemoteSource')}');
-    _logger.info('  API     : ${cyan.wrap(apiType)}');
-    _logger.info(
-        '  Scope   : ${createAbstract && createImpl ? "Both" : (createAbstract ? "Abstract Only" : "Implementation Only")}');
+    _logger.info('  Source  : ${cyan.wrap(sourceClass)}');
+    _logger.info('  Parts   : ${cyan.wrap('${createAbstract ? "Abstract" : ""} ${createImpl ? "Implementation" : ""}'.trim())}');
     _logger.info('');
 
     final Progress progress = _logger.progress('Generating Source...');
@@ -140,13 +108,11 @@ class MakeSourceCommand extends Command<int> {
         featureClass: sourceClass,
         additionalVars: <String, dynamic>{
           'source_name': sourceSnake,
-          'source_class': sourceClass,
-          'use_graphql': apiType == 'graphql',
           'create_abstract': createAbstract,
           'create_impl': createImpl,
         },
       );
-      progress.complete('${sourceClass}RemoteSource generated!');
+      progress.complete('$sourceClass Source generated!');
     } catch (e) {
       progress.fail('Generation failed: $e');
       return 1;

@@ -21,7 +21,8 @@ String snakeCase(String input) {
   final StringBuffer result = StringBuffer();
   for (int i = 0; i < input.length; i++) {
     final String char = input[i];
-    if (char.toUpperCase() == char && i > 0 && input[i - 1] != '_') {
+    final bool isUpper = char != char.toLowerCase();
+    if (isUpper && i > 0 && input[i - 1] != '_') {
       result.write('_');
     }
     result.write(char.toLowerCase());

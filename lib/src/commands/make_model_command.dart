@@ -9,18 +9,11 @@ import 'package:simplex_cli/src/utils/path_aware_resolver.dart';
 
 class MakeModelCommand extends Command<int> {
   MakeModelCommand({required Logger logger}) : _logger = logger {
-    argParser
-      ..addOption(
-        'feature',
-        abbr: 'f',
-        help: 'Target feature name (snake_case). Inferred from CWD if omitted.',
-      )
-      ..addOption(
-        'api',
-        abbr: 'a',
-        help: 'Implementation type (graphql/rest). Defaults to simplex.yaml default.',
-        allowed: <String>['graphql', 'rest'],
-      );
+    argParser.addOption(
+      'feature',
+      abbr: 'f',
+      help: 'Target feature name (snake_case). Inferred from CWD if omitted.',
+    );
   }
 
   final Logger _logger;
@@ -29,10 +22,8 @@ class MakeModelCommand extends Command<int> {
   String get name => 'make:model';
 
   @override
-  String get description => 'Create a new freezed Data Model inside a feature\'s data/models/ folder.\n'
-      'Example: simplex make:model nurse_response\n'
-      '         simplex make:model user_profile --api rest\n'
-      'Name must be snake_case (e.g. nurse_response, not NurseResponse).\n'
+  String get description => 'Create a new freezed data model for a feature.\n'
+      'Example: simplex make:model User\n'
       'Path-aware: run from inside a feature folder to skip the feature prompt.';
 
   @override
@@ -55,28 +46,11 @@ class MakeModelCommand extends Command<int> {
         : config.interactive;
 
     // ── Resolve name (positional) ────────────────────────────────────────────
-    // Name must be snake_case — the generated class will be PascalCase.
-    bool isSnakeCase(String v) => RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(v.trim());
-
-    String rawName;
+    final String rawName;
     if (argResults!.rest.isNotEmpty) {
-      rawName = argResults!.rest.first.trim();
-      if (!isSnakeCase(rawName)) {
-        _logger.err(
-          "'$rawName' is not snake_case. "
-          'Please use snake_case for the model name (e.g. nurse_response, not NurseResponse).',
-        );
-        return 1;
-      }
+      rawName = argResults!.rest.first;
     } else if (isInteractive) {
-      rawName = Input(
-        prompt: 'Model name (snake_case, e.g. nurse_response)',
-        validator: (String val) {
-          if (val.trim().isEmpty) return false;
-          if (!RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(val.trim())) return false;
-          return true;
-        },
-      ).interact().trim();
+      rawName = Input(prompt: 'Model name (PascalCase, e.g. UserAccount)').interact();
     } else {
       throw UsageException(
         'Model name is required as a positional argument in non-interactive mode.',
@@ -84,8 +58,8 @@ class MakeModelCommand extends Command<int> {
       );
     }
 
-    final String modelClass = toUpperCamelCase(rawName);
-    final String modelSnake = rawName;
+    final String modelClass = toUpperCamelCase(snakeCase(rawName));
+    final String modelSnake = snakeCase(rawName);
 
     // ── Resolve feature (path-aware) ─────────────────────────────────────────
     final String featureName = resolveFeatureName(
@@ -95,30 +69,25 @@ class MakeModelCommand extends Command<int> {
       interactive: isInteractive,
     );
 
-    final String apiType = argResults?['api'] as String? ?? config.defaultApi;
-
     _logger.info('');
     _logger.info(lightCyan.wrap('✨  Simplex — make:model')!);
     _logger.info('  Feature : ${cyan.wrap(featureName)}');
-    _logger.info('  Model   : ${cyan.wrap('${modelClass}Model')}');
-    _logger.info('  API     : ${cyan.wrap(apiType)}');
+    _logger.info('  Model   : ${cyan.wrap(modelClass)}');
     _logger.info('');
 
-    final Progress progress = _logger.progress('Generating Data Model...');
+    final Progress progress = _logger.progress('Generating Model...');
     try {
       await FeatureGenerator.generateComponent(
         projectRoot: projectRoot,
         config: config,
         brickName: 'model',
         featureName: featureName,
-        featureClass: '',
+        featureClass: modelClass,
         additionalVars: <String, dynamic>{
           'model_name': modelSnake,
-          'model_class': modelClass,
-          'use_graphql': apiType == 'graphql',
         },
       );
-      progress.complete('${modelClass}Model generated!');
+      progress.complete('$modelClass generated!');
     } catch (e) {
       progress.fail('Generation failed: $e');
       return 1;

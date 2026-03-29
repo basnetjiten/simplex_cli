@@ -1,0 +1,13 @@
+project_name: "simplex_cli"
+package_name: "simplex_cli"
+features_path: "lib/features"
+test_path: "test/features"
+default_api: "graphql"
+interactive: true
+features:
+  test__feature:
+    api: "rest"
+    paging: false
+  test_feature:
+    api: "rest"
+    paging: false

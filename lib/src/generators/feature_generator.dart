@@ -249,12 +249,4 @@ class FeatureGenerator {
       'Make sure the "bricks" folder exists at the root of the simplex_cli package.',
     );
   }
-
-  // Load bundle is no longer needed as we use fromBrick directly
-  /*
-  static Future<MasonBundle> _loadBundle(String brickPath) async {
-    final Brick brick = Brick.path(brickPath);
-    return createBundle(brick);
-  }
-  */
 }

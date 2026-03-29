@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:{{package_name}}/core/di/injector.dart';
 import 'package:simplex/form/bloc_status.dart';
-import 'package:{{package_name}}/features/{{feature_name}}/presentation/blocs/{{feature_name}}_cubit.dart';
+import 'package:{{package_name}}/features/{{feature_name}}/presentation/blocs/{{feature_name}}/{{feature_name}}_cubit.dart';
 {{#use_paging}}
 import 'package:{{package_name}}/features/{{feature_name}}/data/models/{{feature_name}}_model.dart';
 import 'package:simplex/pagination/paging_cubit.dart';
