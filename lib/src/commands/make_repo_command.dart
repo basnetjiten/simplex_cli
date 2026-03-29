@@ -7,17 +7,28 @@ import 'package:simplex_cli/src/generators/feature_generator.dart';
 import 'package:simplex_cli/src/utils/case_utils.dart';
 import 'package:simplex_cli/src/utils/path_aware_resolver.dart';
 
-class MakeRepositoryCommand extends Command<int> {
-  MakeRepositoryCommand({required Logger logger}) : _logger = logger {
+class MakeRepoCommand extends Command<int> {
+  MakeRepoCommand({required Logger logger}) : _logger = logger {
     argParser
       ..addOption(
         'feature',
         abbr: 'f',
         help: 'Target feature name (snake_case). Inferred from CWD if omitted.',
       )
+      ..addFlag(
+        'abstract-only',
+        abbr: 'a',
+        help: 'Generate only the repository interface (domain/).',
+        negatable: false,
+      )
+      ..addFlag(
+        'impl-only',
+        abbr: 'i',
+        help: 'Generate only the repository implementation (data/).',
+        negatable: false,
+      )
       ..addOption(
         'api',
-        abbr: 'a',
         help: 'API type for the implementation stub (graphql/rest).',
         allowed: <String>['graphql', 'rest'],
       );
@@ -26,15 +37,14 @@ class MakeRepositoryCommand extends Command<int> {
   final Logger _logger;
 
   @override
-  String get name => 'make:repository';
+  String get name => 'make:repo';
 
   @override
   String get description =>
-      'Create a repository abstract interface (domain/) + concrete implementation (data/).\n'
-      'Example: simplex make:repository User\n'
-      '         simplex make:repository Order --api rest\n'
-      'Path-aware: run from inside a feature folder to skip the feature prompt.\n'
-      'Requires an existing feature. Run \'simplex make:feature\' first if none exist.';
+      'Create a repository interface (domain/) and/or concrete implementation (data/).\n'
+      'Example: simplex make:repo user_profile\n'
+      '         simplex make:repo user_profile -a (interface only)\n'
+      'Path-aware: run from inside a feature folder to skip the feature prompt.';
 
   @override
   Future<int> run() async {
@@ -61,12 +71,32 @@ class MakeRepositoryCommand extends Command<int> {
     }
 
     // ── Resolve name (positional) ────────────────────────────────────────────
-    final String rawName = argResults!.rest.isNotEmpty
-        ? argResults!.rest.first
-        : Input(prompt: 'Repository name (PascalCase, e.g. User)').interact();
+    bool isSnakeCase(String v) =>
+        RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(v.trim());
 
-    final String repoClass = toUpperCamelCase(snakeCase(rawName));
-    final String repoSnake = snakeCase(rawName);
+    String rawName;
+    if (argResults!.rest.isNotEmpty) {
+      rawName = argResults!.rest.first.trim();
+      if (!isSnakeCase(rawName)) {
+        _logger.err(
+          "'$rawName' is not snake_case. "
+          'Please use snake_case for the repository name (e.g. user_profile).',
+        );
+        return 1;
+      }
+    } else {
+      rawName = Input(
+        prompt: 'Repository name (snake_case, e.g. user_profile)',
+        validator: (String val) {
+          if (val.trim().isEmpty) return false;
+          if (!RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(val.trim())) return false;
+          return true;
+        },
+      ).interact().trim();
+    }
+
+    final String repoClass = toUpperCamelCase(rawName);
+    final String repoSnake = rawName;
 
     // ── Resolve feature (path-aware) ─────────────────────────────────────────
     final String featureName = resolveFeatureName(
@@ -77,18 +107,27 @@ class MakeRepositoryCommand extends Command<int> {
 
     final String apiType = argResults?['api'] as String? ?? config.defaultApi;
 
+    // ── Resolve generation flags ─────────────────────────────────────────────
+    final bool abstractOnly = argResults!['abstract-only'] as bool;
+    final bool implOnly = argResults!['impl-only'] as bool;
+
+    bool createAbstract = true;
+    bool createImpl = true;
+
+    if (abstractOnly) {
+      createAbstract = true;
+      createImpl = false;
+    } else if (implOnly) {
+      createAbstract = false;
+      createImpl = true;
+    }
+
     _logger.info('');
-    _logger.info(lightCyan.wrap('✨  Simplex — make:repository')!);
+    _logger.info(lightCyan.wrap('✨  Simplex — make:repo')!);
     _logger.info('  Feature    : ${cyan.wrap(featureName)}');
     _logger.info('  Repository : ${cyan.wrap('${repoClass}Repository')}');
     _logger.info('  API        : ${cyan.wrap(apiType)}');
-    _logger.info('  Creates    :');
-    _logger.info(
-      '    ${darkGray.wrap('domain/repositories/')}${cyan.wrap('${repoSnake}_repository.dart')}  (interface)',
-    );
-    _logger.info(
-      '    ${darkGray.wrap('data/repositories/')}${cyan.wrap('${repoSnake}_repository_impl.dart')}  (impl)',
-    );
+    _logger.info('  Scope      : ${createAbstract && createImpl ? "Both" : (createAbstract ? "Abstract Only" : "Implementation Only")}');
     _logger.info('');
 
     final Progress progress = _logger.progress('Generating Repository...');
@@ -103,6 +142,8 @@ class MakeRepositoryCommand extends Command<int> {
           'repo_name': repoSnake,
           'repo_class': repoClass,
           'use_graphql': apiType == 'graphql',
+          'create_abstract': createAbstract,
+          'create_impl': createImpl,
         },
       );
       progress.complete('${repoClass}Repository generated!');

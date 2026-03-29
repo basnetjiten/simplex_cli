@@ -8,11 +8,11 @@ import 'package:simplex_cli/src/commands/convert_command.dart';
 import 'package:simplex_cli/src/commands/init_command.dart';
 import 'package:simplex_cli/src/commands/make_bloc_command.dart';
 import 'package:simplex_cli/src/commands/make_cubit_command.dart';
-import 'package:simplex_cli/src/commands/make_domain_command.dart';
 import 'package:simplex_cli/src/commands/make_feature_command.dart';
 import 'package:simplex_cli/src/commands/make_model_command.dart';
 import 'package:simplex_cli/src/commands/make_page_command.dart';
-import 'package:simplex_cli/src/commands/make_repository_command.dart';
+import 'package:simplex_cli/src/commands/make_repo_command.dart';
+import 'package:simplex_cli/src/commands/make_source_command.dart';
 import 'package:simplex_cli/src/commands/make_widget_command.dart';
 
 // ---------------------------------------------------------------------------
@@ -25,8 +25,8 @@ const Map<String, String> _colonAliases = <String, String>{
   'make:model': 'make:model',
   'make:page': 'make:page',
   'make:widget': 'make:widget',
-  'make:repository': 'make:repository',
-  'make:domain': 'make:domain',
+  'make:repo': 'make:repo',
+  'make:source': 'make:source',
 };
 
 class SimplexRunner {
@@ -50,8 +50,8 @@ class SimplexRunner {
       'make:model': MakeModelCommand(logger: logger),
       'make:page': MakePageCommand(logger: logger),
       'make:widget': MakeWidgetCommand(logger: logger),
-      'make:repository': MakeRepositoryCommand(logger: logger),
-      'make:domain': MakeDomainCommand(logger: logger),
+      'make:repo': MakeRepoCommand(logger: logger),
+      'make:source': MakeSourceCommand(logger: logger),
     };
 
     // ── Short-circuit for zero args or global help ───────────────────────────
@@ -139,10 +139,10 @@ class SimplexRunner {
       '  ${cyan.wrap('simplex make:widget')}     AvatarCard        — create a reusable widget',
     );
     logger.info(
-      '  ${cyan.wrap('simplex make:repository')} User              — create repo interface + impl',
+      '  ${cyan.wrap('simplex make:repo')}       user              — create repo interface + impl',
     );
     logger.info(
-      '  ${cyan.wrap('simplex make:domain')}     User              — create entity + use case',
+      '  ${cyan.wrap('simplex make:source')}     auth              — create source interface + impl',
     );
     logger.info('');
     logger.info(styleBold.wrap('OTHER COMMANDS')!);

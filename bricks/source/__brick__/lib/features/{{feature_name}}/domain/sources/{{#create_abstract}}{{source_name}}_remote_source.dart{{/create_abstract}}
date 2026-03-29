@@ -1,0 +1,24 @@
+/// Created on: {{created_at}}
+/// Generated with Simplex CLI
+
+{{#use_graphql}}
+import 'package:fpdart/fpdart.dart';
+
+/// Abstract source contract for [{{source_class}}].
+/// Implementations live in data/sources/ and return Ferry GXData objects.
+/// Replace [Unit] with the actual Ferry-generated GXData type after generation.
+abstract class {{source_class}}RemoteSource {
+  Future<Unit> get{{source_class}}();
+}
+{{/use_graphql}}
+{{^use_graphql}}
+import 'package:{{package_name}}/features/{{feature_name}}/data/models/{{source_name}}_model.dart';
+import 'package:fpdart/fpdart.dart';
+
+/// Abstract source contract for [{{source_class}}].
+/// Implementations live in data/sources/ and call the REST API via Dio.
+abstract class {{source_class}}RemoteSource {
+  Future<{{source_class}}Model> get{{source_class}}();
+}
+{{/use_graphql}}
+

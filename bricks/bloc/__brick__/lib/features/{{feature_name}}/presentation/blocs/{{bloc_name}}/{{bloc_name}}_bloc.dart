@@ -6,6 +6,8 @@ import 'package:{{package_name}}/features/{{feature_name}}/domain/repositories/{
 import 'package:simplex/simplex_base.dart';
 import 'package:simplex/form/bloc_status.dart';
 part '{{bloc_name}}_bloc.freezed.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 part '{{bloc_name}}_event.dart';
 part '{{bloc_name}}_state.dart';
 
@@ -26,12 +28,10 @@ class {{bloc_class}}Bloc extends SimplexBloc<{{bloc_class}}Event, {{bloc_class}}
       emitter: emit,
       call: _repository.get{{bloc_class}}(),
       onSuccess: (dynamic data) => state.copyWith(
-        status: {{bloc_class}}Status.loaded,
-        // TODO: map data fields
+        status: BlocStatus.success(),
       ),
       onFailure: (String error) => state.copyWith(
-        status: {{bloc_class}}Status.failure,
-        error: error,
+        status: BlocStatus.failure(error),
       ),
     );
   }
