@@ -108,6 +108,8 @@ class MakeSourceCommand extends Command<int> {
         featureClass: sourceClass,
         additionalVars: <String, dynamic>{
           'source_name': sourceSnake,
+          'source_class': sourceClass,
+          'use_graphql': config.features[featureName]?.api == 'graphql' || (config.features[featureName] == null && config.defaultApi == 'graphql'),
           'create_abstract': createAbstract,
           'create_impl': createImpl,
         },

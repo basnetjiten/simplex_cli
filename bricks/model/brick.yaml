@@ -9,6 +9,12 @@ vars:
   feature_class:
     type: string
     description: Feature class name in PascalCase
+  model_name:
+    type: string
+    description: Model name in snake_case
+  model_class:
+    type: string
+    description: Model class in PascalCase
   package_name:
     type: string
     description: Package name for imports
