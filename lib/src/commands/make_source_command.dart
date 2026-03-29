@@ -59,9 +59,10 @@ class MakeSourceCommand extends Command<int> {
       return 1;
     }
 
-    final bool isInteractive = (argResults?['interactive'] as bool?) ??
-        (globalResults?['interactive'] as bool?) ??
-        true;
+    // Explicit CLI flag wins; otherwise defer to simplex.yaml (set by `simplex init`).
+    final bool isInteractive = argResults?.wasParsed('interactive') == true
+        ? (argResults!['interactive'] as bool)
+        : config.interactive;
 
     // ── Resolve name (positional) ────────────────────────────────────────────
     bool isSnakeCase(String v) => RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(v.trim());

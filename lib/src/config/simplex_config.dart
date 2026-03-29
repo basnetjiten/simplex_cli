@@ -14,6 +14,7 @@ class SimplexConfig {
     required this.testPath,
     required this.defaultApi,
     required this.features,
+    this.interactive = true,
   });
 
   factory SimplexConfig.fromYaml(Map<dynamic, dynamic> yaml) {
@@ -34,6 +35,7 @@ class SimplexConfig {
       testPath: yaml['test_path'] as String? ?? 'test/features',
       defaultApi: yaml['default_api'] as String? ?? 'graphql',
       features: features,
+      interactive: yaml['interactive'] as bool? ?? true,
     );
   }
 
@@ -43,6 +45,7 @@ class SimplexConfig {
   final String testPath;
   final String defaultApi;
   final Map<String, FeatureConfig> features;
+  final bool interactive;
 
   Map<String, dynamic> toMap() => <String, dynamic>{
         'project_name': projectName,
@@ -50,6 +53,7 @@ class SimplexConfig {
         'features_path': featuresPath,
         'test_path': testPath,
         'default_api': defaultApi,
+        'interactive': interactive,
         if (features.isNotEmpty)
           'features': features.map(
             (String key, FeatureConfig value) => MapEntry<String, dynamic>(key, value.toMap()),
@@ -63,6 +67,7 @@ class SimplexConfig {
     String? testPath,
     String? defaultApi,
     Map<String, FeatureConfig>? features,
+    bool? interactive,
   }) =>
       SimplexConfig(
         projectName: projectName ?? this.projectName,
@@ -71,6 +76,7 @@ class SimplexConfig {
         testPath: testPath ?? this.testPath,
         defaultApi: defaultApi ?? this.defaultApi,
         features: features ?? this.features,
+        interactive: interactive ?? this.interactive,
       );
 }
 
@@ -145,6 +151,7 @@ SimplexConfig? _getFallbackConfig(String projectRoot) {
     testPath: 'test/features',
     defaultApi: 'graphql',
     features: <String, FeatureConfig>{},
+    interactive: true,
   );
 }
 

@@ -82,9 +82,10 @@ class ConvertCommand extends Command<int> {
     _logger.info('  To      : $targetApi');
     _logger.info('');
 
-    final bool isInteractive = (argResults?['interactive'] as bool?) ??
-        (globalResults?['interactive'] as bool?) ??
-        true;
+    // Explicit CLI flag wins; otherwise defer to simplex.yaml (set by `simplex init`).
+    final bool isInteractive = argResults?.wasParsed('interactive') == true
+        ? (argResults!['interactive'] as bool)
+        : config.interactive;
 
     if (dryRun) {
       _logger.info(yellow.wrap('🔍  Dry run — no files will be written')!);
