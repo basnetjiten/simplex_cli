@@ -6,17 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="8f0cd5f1-92d6-495f-9907-b59e0f7c562c" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/commands/add_paging_command.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/commands/add_paging_command.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/commands/convert_command.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/commands/convert_command.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/commands/init_command.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/commands/init_command.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/commands/make_bloc_command.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/commands/make_bloc_command.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/commands/make_cubit_command.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/commands/make_cubit_command.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/commands/make_feature_command.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/commands/make_feature_command.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/commands/make_model_command.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/commands/make_model_command.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/commands/make_page_command.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/commands/make_page_command.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/commands/make_repo_command.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/commands/make_repo_command.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/commands/make_source_command.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/commands/make_source_command.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/runner.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/runner.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/config/simplex_config.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/config/simplex_config.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

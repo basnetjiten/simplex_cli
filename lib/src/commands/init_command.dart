@@ -10,6 +10,15 @@ import 'package:simplex_cli/src/config/simplex_config.dart';
 class InitCommand extends Command<int> {
   InitCommand({required Logger logger}) : _logger = logger {
     argParser
+      ..addFlag(
+        'interactive',
+        help:
+            'Whether to use interactive prompts by default for all commands.\n'
+            'Pass --no-interactive once during init to configure the CLI for\n'
+            'automated / agent use (e.g. opencode, claude). This preference is\n'
+            'saved to simplex.yaml and respected by every subsequent command.',
+        defaultsTo: null,
+      )
       ..addOption(
         'project-name',
         abbr: 'n',
@@ -51,9 +60,12 @@ class InitCommand extends Command<int> {
     final String projectRoot = Directory.current.path;
     final String configPath = p.join(projectRoot, 'simplex.yaml');
 
-    final bool isInteractive = (argResults?['interactive'] as bool?) ??
-        (globalResults?['interactive'] as bool?) ??
-        true;
+    // If --[no-]interactive was explicitly passed, use it.
+    // Otherwise default to true for the init command itself (it is always
+    // safe to run interactively the first time).
+    final bool isInteractive = argResults?.wasParsed('interactive') == true
+        ? (argResults!['interactive'] as bool)
+        : true;
 
     if (File(configPath).existsSync()) {
       if (!isInteractive) {
@@ -128,6 +140,22 @@ class InitCommand extends Command<int> {
               ).interact()
             : 0);
 
+    // ── Interactive mode preference ────────────────────────────────────────
+    // If --[no-]interactive was explicitly passed on the CLI, honour it.
+    // Otherwise ask during interactive setup, or default to true.
+    final bool saveInteractive;
+    if (argResults?.wasParsed('interactive') == true) {
+      saveInteractive = argResults!['interactive'] as bool;
+    } else if (isInteractive) {
+      saveInteractive = Confirm(
+        prompt: 'Enable interactive prompts for all commands by default?\n'
+            '  (choose No for automated / agent use — e.g. opencode, claude)',
+        defaultValue: true,
+      ).interact();
+    } else {
+      saveInteractive = true;
+    }
+
     final SimplexConfig config = SimplexConfig(
       projectName: projectName,
       packageName: packageName,
@@ -135,14 +163,27 @@ class InitCommand extends Command<int> {
       testPath: testPath,
       defaultApi: apiChoices[apiIndex],
       features: <String, FeatureConfig>{},
+      interactive: saveInteractive,
     );
 
     saveConfig(projectRoot, config);
 
     _logger.info('');
     _logger.success('simplex.yaml created at $configPath');
+    _logger.info(
+      '  Mode: ${saveInteractive ? cyan.wrap('interactive') : yellow.wrap('non-interactive (agent-friendly)')}',
+    );
     _logger.info('');
-    _logger.info('Run ${cyan.wrap('simplex make feature')} to scaffold your first feature!');
+    if (!saveInteractive) {
+      _logger.info(
+        darkGray.wrap(
+          'Tip: All commands will now skip prompts automatically.\n'
+          '     Override per-command with --interactive if needed.',
+        )!,
+      );
+      _logger.info('');
+    }
+    _logger.info('Run ${cyan.wrap('simplex make:feature <Name>')} to scaffold your first feature!');
     return 0;
   }
 }

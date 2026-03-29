@@ -50,13 +50,17 @@ class SimplexRunner {
       'make:source': MakeSourceCommand(logger: logger),
     };
 
-    // ── Add global-like flags to all commands ────────────────────────────────
+    // Add a global-like --[no-]interactive flag to every command that
+    // doesn't already declare one. Commands resolve this with wasParsed()
+    // and fall back to simplex.yaml's `interactive` field if not passed.
     for (final Command<int> cmd in registry.values) {
       if (!cmd.argParser.options.containsKey('interactive')) {
         cmd.argParser.addFlag(
           'interactive',
-          defaultsTo: true,
-          help: 'Enable or disable interactive prompts.',
+          defaultsTo: null,
+          help: 'Override the interactive preference for this one invocation.\n'
+              'The default comes from simplex.yaml (configured via `simplex init`).\n'
+              'Use --no-interactive to suppress all prompts for this command only.',
         );
       }
     }
@@ -79,11 +83,6 @@ class SimplexRunner {
         'simplex',
         cmd.description,
       )
-        ..argParser.addFlag(
-          'interactive',
-          defaultsTo: true,
-          help: 'Enable or disable interactive prompts.',
-        )
         ..addCommand(cmd);
 
       try {
@@ -106,12 +105,7 @@ class SimplexRunner {
     final CommandRunner<int> runner = CommandRunner<int>(
       'simplex',
       'Scaffold Clean Architecture modules for Flutter.',
-    )
-      ..argParser.addFlag(
-        'interactive',
-        defaultsTo: true,
-        help: 'Enable or disable interactive prompts.',
-      );
+    );
 
     // Add everything from the registry to this runner so it knows all flags/commands
     for (final Command<int> cmd in registry.values) {
