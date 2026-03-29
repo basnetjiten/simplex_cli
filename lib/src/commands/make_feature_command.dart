@@ -11,30 +11,30 @@ import 'package:simplex_cli/src/utils/case_utils.dart';
 class MakeFeatureCommand extends Command<int> {
   MakeFeatureCommand({required Logger logger}) : _logger = logger {
     argParser
-      ..addOption('name', abbr: 'n', help: 'Feature name in snake_case (e.g. login).')
       ..addOption(
         'api',
         abbr: 'a',
         help: 'Implementation type for the data layer.',
         allowed: <String>['graphql', 'rest'],
       )
-      ..addFlag('paging', help: 'Initialize the feature with PagingCubit support.')
+      ..addFlag('paging', help: 'Initialise the feature with PagingCubit support.')
       ..addFlag('tests', help: 'Generate placeholder test files.', defaultsTo: true);
   }
 
   final Logger _logger;
 
   @override
-  String get name => 'feature';
+  String get name => 'make:feature';
 
   @override
   String get description =>
-      'Scaffold a complete feature module (data, domain, and presentation).\n'
-      'Example: simplex make feature -n login --api graphql --paging';
+      'Scaffold a complete Clean Architecture feature module (data, domain, presentation).\n'
+      'Example: simplex make:feature Auth\n'
+      '         simplex make:feature products --api rest --paging --no-tests';
 
   @override
   Future<int> run() async {
-    // ── Resolve project root & config ─────────────────────────────────────
+    // ── Resolve project root & config ─────────────────────────────────────────
     final String? projectRoot = findProjectRoot();
     if (projectRoot == null) {
       _logger.err(
@@ -51,36 +51,32 @@ class MakeFeatureCommand extends Command<int> {
     }
 
     _logger.info('');
-    _logger.info(lightCyan.wrap('✨  Simplex — Make Feature')!);
+    _logger.info(lightCyan.wrap('✨  Simplex — make:feature')!);
     _logger.info('');
 
-    // ── Prompts ────────────────────────────────────────────────────────────
-    final String featureName = argResults?['name'] as String? ??
-        Input(
-          prompt: 'Feature name (snake_case)',
-          validator: (String val) {
-            if (val.trim().isEmpty) return false;
-            if (!RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(val.trim())) {
-              return false;
-            }
-            return true;
-          },
-        ).interact();
+    // ── Resolve name (positional) ─────────────────────────────────────────────
+    final String rawName = argResults!.rest.isNotEmpty
+        ? argResults!.rest.first
+        : Input(
+            prompt: 'Feature name (PascalCase or snake_case)',
+            validator: (String val) => val.trim().isNotEmpty,
+          ).interact();
 
-    final String cleanName = featureName.trim();
+    final String cleanName = snakeCase(rawName.trim());
     final String featureClass = toUpperCamelCase(cleanName);
 
+    // ── API type ──────────────────────────────────────────────────────────────
     final List<String> apiChoices = <String>['graphql', 'rest'];
     final int defaultApiIndex = apiChoices.indexOf(config.defaultApi);
-    final int apiIndex = argResults?['api'] != null
-        ? apiChoices.indexOf(argResults!['api'] as String)
-        : Select(
-            prompt: 'API type',
-            options: apiChoices,
-            initialIndex: defaultApiIndex >= 0 ? defaultApiIndex : 0,
-          ).interact();
-    final String apiType = apiChoices[apiIndex];
+    final String apiType = argResults?['api'] as String? ??
+        apiChoices[
+            Select(
+              prompt: 'API type',
+              options: apiChoices,
+              initialIndex: defaultApiIndex >= 0 ? defaultApiIndex : 0,
+            ).interact()];
 
+    // ── Paging ────────────────────────────────────────────────────────────────
     final bool usePaging = argResults?.wasParsed('paging') == true
         ? argResults!['paging'] as bool
         : Confirm(
@@ -88,6 +84,7 @@ class MakeFeatureCommand extends Command<int> {
             defaultValue: false,
           ).interact();
 
+    // ── Tests ─────────────────────────────────────────────────────────────────
     final bool generateTests = argResults?.wasParsed('tests') == true
         ? argResults!['tests'] as bool
         : Confirm(
@@ -95,7 +92,7 @@ class MakeFeatureCommand extends Command<int> {
             defaultValue: true,
           ).interact();
 
-    // ── Check for conflicts ────────────────────────────────────────────────
+    // ── Conflict check ────────────────────────────────────────────────────────
     final String featureDir = p.join(projectRoot, config.featuresPath, cleanName);
     if (Directory(featureDir).existsSync()) {
       final bool overwrite = Confirm(
@@ -108,7 +105,14 @@ class MakeFeatureCommand extends Command<int> {
       }
     }
 
-    // ── Generate ───────────────────────────────────────────────────────────
+    _logger.info('  Feature : ${cyan.wrap(cleanName)}');
+    _logger.info('  Class   : ${cyan.wrap(featureClass)}');
+    _logger.info('  API     : ${cyan.wrap(apiType)}');
+    _logger.info('  Paging  : ${cyan.wrap(usePaging.toString())}');
+    _logger.info('  Tests   : ${cyan.wrap(generateTests.toString())}');
+    _logger.info('');
+
+    // ── Generate ──────────────────────────────────────────────────────────────
     final Progress progress = _logger.progress('Generating $cleanName...');
     try {
       await FeatureGenerator.generate(
@@ -126,7 +130,7 @@ class MakeFeatureCommand extends Command<int> {
       return 1;
     }
 
-    // ── Persist to feature registry ───────────────────────────────────────
+    // ── Persist feature registry ──────────────────────────────────────────────
     final Map<String, FeatureConfig> updatedFeatures =
         Map<String, FeatureConfig>.from(config.features)
           ..[cleanName] = FeatureConfig(api: apiType, paging: usePaging);
@@ -134,10 +138,12 @@ class MakeFeatureCommand extends Command<int> {
 
     _logger.info('');
     await FeatureGenerator.runBuildRunner(projectRoot, _logger);
-    
+
     _logger.info('');
     _logger.info(green.wrap('✅  Done! Next steps:')!);
-    _logger.info('  1. ${cyan.wrap('dart run build_runner build --delete-conflicting-outputs')}');
+    _logger.info(
+      '  1. ${cyan.wrap('dart run build_runner build --delete-conflicting-outputs')}',
+    );
     _logger.info('  2. Register the route in your AutoRoute router.');
     if (apiType == 'graphql') {
       _logger.info('  3. Add your .graphql operation file and run ferry_generator.');

@@ -1,0 +1,25 @@
+name: repository
+description: Generates a repository interface (domain/) and its concrete implementation (data/) with injectable registration.
+version: 0.1.0
+
+vars:
+  feature_name:
+    type: string
+    description: Feature name in snake_case (e.g. auth)
+
+  repo_name:
+    type: string
+    description: Repository name in snake_case (e.g. user)
+
+  repo_class:
+    type: string
+    description: Repository class prefix in PascalCase (e.g. User)
+
+  package_name:
+    type: string
+    description: Dart package name used in import paths
+
+  use_graphql:
+    type: boolean
+    description: Use GraphQL (ferry) for the data source implementation
+    default: true

@@ -1,0 +1,20 @@
+name: bloc
+description: Generates a flutter_bloc Bloc with Event and State (Clean Architecture — presentation/blocs/).
+version: 0.1.0
+
+vars:
+  feature_name:
+    type: string
+    description: Feature name in snake_case (e.g. auth)
+
+  bloc_name:
+    type: string
+    description: Bloc name in snake_case (e.g. auth) — used for file names
+
+  bloc_class:
+    type: string
+    description: Bloc class prefix in PascalCase (e.g. Auth)
+
+  package_name:
+    type: string
+    description: Dart package name used in import paths

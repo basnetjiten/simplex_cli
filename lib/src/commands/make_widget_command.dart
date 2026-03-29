@@ -6,25 +6,18 @@ import 'package:simplex_cli/src/generators/feature_generator.dart';
 import 'package:simplex_cli/src/utils/case_utils.dart';
 import 'package:simplex_cli/src/utils/path_aware_resolver.dart';
 
-class MakePageCommand extends Command<int> {
-  MakePageCommand({required Logger logger}) : _logger = logger {
-    argParser.addFlag(
-      'paging',
-      help: 'Wrap the page body with PagingCubit.',
-      defaultsTo: null,
-    );
-  }
+class MakeWidgetCommand extends Command<int> {
+  MakeWidgetCommand({required Logger logger}) : _logger = logger;
 
   final Logger _logger;
 
   @override
-  String get name => 'make:page';
+  String get name => 'make:widget';
 
   @override
   String get description =>
-      'Create a new Page widget for a feature.\n'
-      'Example: simplex make:page Login\n'
-      '         simplex make:page ProductList --paging\n'
+      'Create a reusable StatelessWidget inside a feature\'s presentation/widgets/ folder.\n'
+      'Example: simplex make:widget AvatarCard\n'
       'Path-aware: run from inside a feature folder to skip the feature prompt.';
 
   @override
@@ -44,9 +37,10 @@ class MakePageCommand extends Command<int> {
     // ── Resolve name (positional) ────────────────────────────────────────────
     final String rawName = argResults!.rest.isNotEmpty
         ? argResults!.rest.first
-        : Input(prompt: 'Page name (PascalCase, e.g. Login)').interact();
+        : Input(prompt: 'Widget name (PascalCase, e.g. AvatarCard)').interact();
 
-    final String pageClass = toUpperCamelCase(snakeCase(rawName));
+    final String widgetClass = toUpperCamelCase(snakeCase(rawName));
+    final String widgetSnake = snakeCase(rawName);
 
     // ── Resolve feature (path-aware) ─────────────────────────────────────────
     final String featureName = resolveFeatureName(
@@ -54,33 +48,27 @@ class MakePageCommand extends Command<int> {
       projectRoot: projectRoot,
     );
 
-    final bool usePaging = argResults?.wasParsed('paging') == true
-        ? argResults!['paging'] as bool
-        : Confirm(
-            prompt: 'Enable pagination (PagingCubit)?',
-            defaultValue: false,
-          ).interact();
-
     _logger.info('');
-    _logger.info(lightCyan.wrap('✨  Simplex — make:page')!);
+    _logger.info(lightCyan.wrap('✨  Simplex — make:widget')!);
     _logger.info('  Feature : ${cyan.wrap(featureName)}');
-    _logger.info('  Page    : ${cyan.wrap('${pageClass}Page')}');
+    _logger.info('  Widget  : ${cyan.wrap(widgetClass)}');
+    _logger.info('  Output  : ${cyan.wrap('lib/features/$featureName/presentation/widgets/$widgetSnake.dart')}');
     _logger.info('');
 
-    final Progress progress = _logger.progress('Generating Page...');
+    final Progress progress = _logger.progress('Generating Widget...');
     try {
       await FeatureGenerator.generateComponent(
         projectRoot: projectRoot,
         config: config,
-        brickName: 'page',
+        brickName: 'widget',
         featureName: featureName,
-        featureClass: pageClass,
+        featureClass: widgetClass,
         additionalVars: <String, dynamic>{
-          'use_paging': usePaging,
+          'widget_name': widgetSnake,
+          'widget_class': widgetClass,
         },
       );
-      progress.complete('${pageClass}Page generated!');
-      await FeatureGenerator.runBuildRunner(projectRoot, _logger);
+      progress.complete('$widgetClass generated!');
     } catch (e) {
       progress.fail('Generation failed: $e');
       return 1;

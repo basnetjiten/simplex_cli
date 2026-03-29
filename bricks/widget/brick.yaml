@@ -1,0 +1,20 @@
+name: widget
+description: Generates a reusable StatelessWidget inside a feature's presentation/widgets/ folder.
+version: 0.1.0
+
+vars:
+  feature_name:
+    type: string
+    description: Feature name in snake_case (e.g. auth)
+
+  widget_name:
+    type: string
+    description: Widget file name in snake_case (e.g. avatar_card)
+
+  widget_class:
+    type: string
+    description: Widget class name in PascalCase (e.g. AvatarCard)
+
+  package_name:
+    type: string
+    description: Dart package name used in import paths
