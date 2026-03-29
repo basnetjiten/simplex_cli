@@ -1,0 +1,10 @@
+/// Created on: {{created_at}}
+/// Generated with Simplex CLI
+
+import 'package:{{package_name}}/features/{{feature_name}}/data/models/{{repo_name}}_model.dart';
+import 'package:simplex/typedefs/typedefs.dart';
+
+abstract class {{repo_class}}Repository {
+  EitherResponse<{{repo_class}}Model> get{{repo_class}}();
+}
+

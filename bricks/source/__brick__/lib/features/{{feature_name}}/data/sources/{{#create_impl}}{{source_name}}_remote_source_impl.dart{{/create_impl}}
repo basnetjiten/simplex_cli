@@ -1,0 +1,41 @@
+/// Created on: {{created_at}}
+/// Generated with Simplex CLI
+
+{{#use_graphql}}
+import 'package:{{package_name}}/features/{{feature_name}}/domain/sources/{{source_name}}_remote_source.dart';
+import 'package:simplex/base/simplex_base_remote_source.dart';
+import 'package:injectable/injectable.dart';
+import 'package:ferry/ferry.dart';
+import 'package:fpdart/fpdart.dart';
+
+@Injectable(as: {{source_class}}RemoteSource)
+class {{source_class}}RemoteSourceImpl extends SimplexGraphqlRemoteSource implements {{source_class}}RemoteSource {
+  {{source_class}}RemoteSourceImpl(super._graphqlClient);
+
+  @override
+  Future<Unit> get{{source_class}}() async {
+    // TODO: build and execute Ferry request
+    throw UnimplementedError('get{{source_class}} not implemented yet');
+  }
+}
+{{/use_graphql}}
+{{^use_graphql}}
+import 'package:dio/dio.dart';
+import 'package:{{package_name}}/features/{{feature_name}}/data/models/{{source_name}}_model.dart';
+import 'package:{{package_name}}/features/{{feature_name}}/domain/sources/{{source_name}}_remote_source.dart';
+import 'package:injectable/injectable.dart';
+import 'package:simplex/base/simplex_base_remote_source.dart';
+
+@Injectable(as: {{source_class}}RemoteSource)
+class {{source_class}}RemoteSourceImpl extends SimplexRestRemoteSource implements {{source_class}}RemoteSource {
+  {{source_class}}RemoteSourceImpl(this._dio);
+  final Dio _dio;
+
+  @override
+  Future<{{source_class}}Model> get{{source_class}}() async {
+    final Response<dynamic> response = await _dio.get<dynamic>('/{{source_name}}');
+    return {{source_class}}Model.fromJson(response.data as Map<String, dynamic>);
+  }
+}
+{{/use_graphql}}
+
