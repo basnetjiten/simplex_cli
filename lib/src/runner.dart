@@ -1,6 +1,5 @@
 // Author: Jiten Basnet
 import 'dart:io';
-
 import 'package:args/command_runner.dart';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:simplex_cli/src/commands/add_command.dart';
@@ -13,7 +12,6 @@ import 'package:simplex_cli/src/commands/make_model_command.dart';
 import 'package:simplex_cli/src/commands/make_page_command.dart';
 import 'package:simplex_cli/src/commands/make_repo_command.dart';
 import 'package:simplex_cli/src/commands/make_source_command.dart';
-import 'package:simplex_cli/src/commands/make_widget_command.dart';
 
 // ---------------------------------------------------------------------------
 // Command aliases: maps every known "make:xxx" token to its Command factory.
@@ -49,7 +47,6 @@ class SimplexRunner {
       'make:bloc': MakeBlocCommand(logger: logger),
       'make:model': MakeModelCommand(logger: logger),
       'make:page': MakePageCommand(logger: logger),
-      'make:widget': MakeWidgetCommand(logger: logger),
       'make:repo': MakeRepoCommand(logger: logger),
       'make:source': MakeSourceCommand(logger: logger),
     };
@@ -127,7 +124,7 @@ class SimplexRunner {
       '  ${cyan.wrap('simplex make:cubit')}      Counter           — create a SimplexCubit',
     );
     logger.info(
-      '  ${cyan.wrap('simplex make:bloc')}       Auth              — create a flutter_bloc Bloc',
+      '  ${cyan.wrap('simplex make:bloc')}       Auth              — create a SimplexBloc',
     );
     logger.info(
       '  ${cyan.wrap('simplex make:model')}      User              — create a freezed data model',
@@ -139,10 +136,10 @@ class SimplexRunner {
       '  ${cyan.wrap('simplex make:widget')}     AvatarCard        — create a reusable widget',
     );
     logger.info(
-      '  ${cyan.wrap('simplex make:repo')}       user              — create repo interface + impl',
+      '  ${cyan.wrap('simplex make:repo')}       user              — create repo abstract + impl',
     );
     logger.info(
-      '  ${cyan.wrap('simplex make:source')}     auth              — create source interface + impl',
+      '  ${cyan.wrap('simplex make:source')}     auth              — create source abstract + impl',
     );
     logger.info('');
     logger.info(styleBold.wrap('OTHER COMMANDS')!);
