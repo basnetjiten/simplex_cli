@@ -102,7 +102,7 @@ class SimplexRunner {
       }
     }
 
-    // ── Dispatch legacy multi-word commands (init, convert, add) ────────────
+    // ── Dispatch legacy multi-word & colon commands ────────────────────────────
     final CommandRunner<int> runner = CommandRunner<int>(
       'simplex',
       'Scaffold Clean Architecture modules for Flutter.',
@@ -111,10 +111,12 @@ class SimplexRunner {
         'interactive',
         defaultsTo: true,
         help: 'Enable or disable interactive prompts.',
-      )
-      ..addCommand(InitCommand(logger: logger))
-      ..addCommand(ConvertCommand(logger: logger))
-      ..addCommand(AddCommand(logger: logger));
+      );
+
+    // Add everything from the registry to this runner so it knows all flags/commands
+    for (final Command<int> cmd in registry.values) {
+      runner.addCommand(cmd);
+    }
 
     try {
       final int? exitCode = await runner.run(args);
