@@ -51,7 +51,9 @@ class InitCommand extends Command<int> {
     final String projectRoot = Directory.current.path;
     final String configPath = p.join(projectRoot, 'simplex.yaml');
 
-    final bool isInteractive = globalResults?['interactive'] as bool? ?? true;
+    final bool isInteractive = (argResults?['interactive'] as bool?) ??
+        (globalResults?['interactive'] as bool?) ??
+        true;
 
     if (File(configPath).existsSync()) {
       if (!isInteractive) {

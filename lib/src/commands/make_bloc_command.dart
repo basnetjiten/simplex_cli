@@ -40,7 +40,9 @@ class MakeBlocCommand extends Command<int> {
       return 1;
     }
 
-    final bool isInteractive = globalResults?['interactive'] as bool? ?? true;
+    final bool isInteractive = (argResults?['interactive'] as bool?) ??
+        (globalResults?['interactive'] as bool?) ??
+        true;
 
     // ── Resolve name (positional) ────────────────────────────────────────────
     // Name must be snake_case — the generated class will be PascalCase.
