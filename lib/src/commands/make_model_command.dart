@@ -8,12 +8,18 @@ import 'package:simplex_cli/src/utils/path_aware_resolver.dart';
 
 class MakeModelCommand extends Command<int> {
   MakeModelCommand({required Logger logger}) : _logger = logger {
-    argParser.addOption(
-      'api',
-      abbr: 'a',
-      help: 'Implementation type (graphql/rest). Defaults to simplex.yaml default.',
-      allowed: <String>['graphql', 'rest'],
-    );
+    argParser
+      ..addOption(
+        'feature',
+        abbr: 'f',
+        help: 'Target feature name (snake_case). Inferred from CWD if omitted.',
+      )
+      ..addOption(
+        'api',
+        abbr: 'a',
+        help: 'Implementation type (graphql/rest). Defaults to simplex.yaml default.',
+        allowed: <String>['graphql', 'rest'],
+      );
   }
 
   final Logger _logger;
@@ -24,8 +30,9 @@ class MakeModelCommand extends Command<int> {
   @override
   String get description =>
       'Create a new freezed Data Model inside a feature\'s data/models/ folder.\n'
-      'Example: simplex make:model User\n'
-      '         simplex make:model UserProfile --api rest\n'
+      'Example: simplex make:model nurse_response\n'
+      '         simplex make:model user_profile --api rest\n'
+      'Name must be snake_case (e.g. nurse_response, not NurseResponse).\n'
       'Path-aware: run from inside a feature folder to skip the feature prompt.';
 
   @override
@@ -43,17 +50,39 @@ class MakeModelCommand extends Command<int> {
     }
 
     // ── Resolve name (positional) ────────────────────────────────────────────
-    final String rawName = argResults!.rest.isNotEmpty
-        ? argResults!.rest.first
-        : Input(prompt: 'Model name (PascalCase, e.g. User)').interact();
+    // Name must be snake_case — the generated class will be PascalCase.
+    bool isSnakeCase(String v) =>
+        RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(v.trim());
 
-    final String modelClass = toUpperCamelCase(snakeCase(rawName));
-    final String modelSnake = snakeCase(rawName);
+    String rawName;
+    if (argResults!.rest.isNotEmpty) {
+      rawName = argResults!.rest.first.trim();
+      if (!isSnakeCase(rawName)) {
+        _logger.err(
+          "'$rawName' is not snake_case. "
+          'Please use snake_case for the model name (e.g. nurse_response, not NurseResponse).',
+        );
+        return 1;
+      }
+    } else {
+      rawName = Input(
+        prompt: 'Model name (snake_case, e.g. nurse_response)',
+        validator: (String val) {
+          if (val.trim().isEmpty) return false;
+          if (!RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(val.trim())) return false;
+          return true;
+        },
+      ).interact().trim();
+    }
+
+    final String modelClass = toUpperCamelCase(rawName);
+    final String modelSnake = rawName;
 
     // ── Resolve feature (path-aware) ─────────────────────────────────────────
     final String featureName = resolveFeatureName(
       config: config,
       projectRoot: projectRoot,
+      argValue: argResults?['feature'] as String?,
     );
 
     final String apiType = argResults?['api'] as String? ?? config.defaultApi;

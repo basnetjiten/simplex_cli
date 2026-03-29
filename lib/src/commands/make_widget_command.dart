@@ -7,7 +7,13 @@ import 'package:simplex_cli/src/utils/case_utils.dart';
 import 'package:simplex_cli/src/utils/path_aware_resolver.dart';
 
 class MakeWidgetCommand extends Command<int> {
-  MakeWidgetCommand({required Logger logger}) : _logger = logger;
+  MakeWidgetCommand({required Logger logger}) : _logger = logger {
+    argParser.addOption(
+      'feature',
+      abbr: 'f',
+      help: 'Target feature name (snake_case). Inferred from CWD if omitted.',
+    );
+  }
 
   final Logger _logger;
 
@@ -46,6 +52,7 @@ class MakeWidgetCommand extends Command<int> {
     final String featureName = resolveFeatureName(
       config: config,
       projectRoot: projectRoot,
+      argValue: argResults?['feature'] as String?,
     );
 
     _logger.info('');

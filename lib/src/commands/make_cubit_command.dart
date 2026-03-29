@@ -8,7 +8,13 @@ import 'package:simplex_cli/src/utils/path_aware_resolver.dart';
 
 class MakeCubitCommand extends Command<int> {
   MakeCubitCommand({required Logger logger}) : _logger = logger {
-    argParser.addFlag(
+    argParser
+      ..addOption(
+        'feature',
+        abbr: 'f',
+        help: 'Target feature name (snake_case). Inferred from CWD if omitted.',
+      )
+      ..addFlag(
         'paging',
         help: 'Add PagingCubit boilerplate to the new cubit.',
         defaultsTo: null,
@@ -55,6 +61,7 @@ class MakeCubitCommand extends Command<int> {
     final String featureName = resolveFeatureName(
       config: config,
       projectRoot: projectRoot,
+      argValue: argResults?['feature'] as String?,
     );
 
     final bool usePaging = argResults?.wasParsed('paging') == true

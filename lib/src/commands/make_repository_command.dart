@@ -8,12 +8,18 @@ import 'package:simplex_cli/src/utils/path_aware_resolver.dart';
 
 class MakeRepositoryCommand extends Command<int> {
   MakeRepositoryCommand({required Logger logger}) : _logger = logger {
-    argParser.addOption(
-      'api',
-      abbr: 'a',
-      help: 'API type for the implementation stub (graphql/rest).',
-      allowed: <String>['graphql', 'rest'],
-    );
+    argParser
+      ..addOption(
+        'feature',
+        abbr: 'f',
+        help: 'Target feature name (snake_case). Inferred from CWD if omitted.',
+      )
+      ..addOption(
+        'api',
+        abbr: 'a',
+        help: 'API type for the implementation stub (graphql/rest).',
+        allowed: <String>['graphql', 'rest'],
+      );
   }
 
   final Logger _logger;
@@ -65,6 +71,7 @@ class MakeRepositoryCommand extends Command<int> {
     final String featureName = resolveFeatureName(
       config: config,
       projectRoot: projectRoot,
+      argValue: argResults?['feature'] as String?,
     );
 
     final String apiType = argResults?['api'] as String? ?? config.defaultApi;
