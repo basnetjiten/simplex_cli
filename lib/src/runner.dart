@@ -22,7 +22,6 @@ const Map<String, String> _colonAliases = <String, String>{
   'make:bloc': 'make:bloc',
   'make:model': 'make:model',
   'make:page': 'make:page',
-  'make:widget': 'make:widget',
   'make:repo': 'make:repo',
   'make:source': 'make:source',
 };
@@ -133,7 +132,7 @@ class SimplexRunner {
       '  ${cyan.wrap('simplex make:page')}       Login             — create a page widget',
     );
     logger.info(
-      '  ${cyan.wrap('simplex make:widget')}     AvatarCard        — create a reusable widget',
+      '  ${cyan.wrap('simplex make:repo')}       user              — create repo abstract + impl',
     );
     logger.info(
       '  ${cyan.wrap('simplex make:repo')}       user              — create repo abstract + impl',
