@@ -1,3 +1,4 @@
+// Author: Jiten Basnet
 import 'package:args/command_runner.dart';
 import 'package:interact/interact.dart' hide Progress;
 import 'package:mason_logger/mason_logger.dart';
@@ -41,12 +42,33 @@ class MakeBlocCommand extends Command<int> {
     }
 
     // ── Resolve name (positional) ────────────────────────────────────────────
-    final String rawName = argResults!.rest.isNotEmpty
-        ? argResults!.rest.first
-        : Input(prompt: 'Bloc name (PascalCase, e.g. Auth)').interact();
+    // Name must be snake_case — the generated class will be PascalCase.
+    bool isSnakeCase(String v) =>
+        RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(v.trim());
 
-    final String blocClass = toUpperCamelCase(snakeCase(rawName));
-    final String blocSnake = snakeCase(rawName);
+    String rawName;
+    if (argResults!.rest.isNotEmpty) {
+      rawName = argResults!.rest.first.trim();
+      if (!isSnakeCase(rawName)) {
+        _logger.err(
+          "'$rawName' is not snake_case. "
+          'Please use snake_case for the bloc name (e.g. nurse_profile, not NurseProfile).',
+        );
+        return 1;
+      }
+    } else {
+      rawName = Input(
+        prompt: 'Bloc name (snake_case, e.g. nurse_profile)',
+        validator: (String val) {
+          if (val.trim().isEmpty) return false;
+          if (!RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(val.trim())) return false;
+          return true;
+        },
+      ).interact().trim();
+    }
+
+    final String blocClass = toUpperCamelCase(rawName);
+    final String blocSnake = rawName;
 
     // ── Resolve feature (path-aware) ─────────────────────────────────────────
     final String featureName = resolveFeatureName(
@@ -75,7 +97,6 @@ class MakeBlocCommand extends Command<int> {
         },
       );
       progress.complete('${blocClass}Bloc generated!');
-      await FeatureGenerator.runBuildRunner(projectRoot, _logger);
     } catch (e) {
       progress.fail('Generation failed: $e');
       return 1;

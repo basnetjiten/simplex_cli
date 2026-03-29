@@ -1,3 +1,6 @@
+/// Created on: {{created_at}}
+/// Generated with Simplex CLI
+
 {{#use_graphql}}
 import 'package:fpdart/fpdart.dart';
 

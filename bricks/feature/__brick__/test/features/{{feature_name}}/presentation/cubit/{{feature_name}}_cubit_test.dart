@@ -1,3 +1,6 @@
+/// Created on: {{created_at}}
+/// Generated with Simplex CLI
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:{{package_name}}/features/{{feature_name}}/presentation/cubit/{{feature_name}}_cubit.dart';
 

@@ -1,3 +1,4 @@
+// Author: Jiten Basnet
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
@@ -137,9 +138,7 @@ class MakeFeatureCommand extends Command<int> {
     saveConfig(projectRoot, config.copyWith(features: updatedFeatures));
 
     _logger.info('');
-    await FeatureGenerator.runBuildRunner(projectRoot, _logger);
 
-    _logger.info('');
     _logger.info(green.wrap('✅  Done! Next steps:')!);
     _logger.info(
       '  1. ${cyan.wrap('dart run build_runner build --delete-conflicting-outputs')}',

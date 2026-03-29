@@ -1,3 +1,6 @@
+/// Created on: {{created_at}}
+/// Generated with Simplex CLI
+
 import 'package:{{package_name}}/features/{{feature_name}}/domain/repositories/{{repo_name}}_repository.dart';
 import 'package:injectable/injectable.dart';
 import 'package:simplex/base/simplex_base_repository.dart';

@@ -1,3 +1,6 @@
+/// Created on: {{created_at}}
+/// Generated with Simplex CLI
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part '{{feature_name}}_model.freezed.dart';

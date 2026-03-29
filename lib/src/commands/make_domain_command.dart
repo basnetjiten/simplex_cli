@@ -1,3 +1,4 @@
+// Author: Jiten Basnet
 import 'package:args/command_runner.dart';
 import 'package:interact/interact.dart' hide Progress;
 import 'package:mason_logger/mason_logger.dart';
@@ -93,7 +94,6 @@ class MakeDomainCommand extends Command<int> {
         },
       );
       progress.complete('$entityClass entity + use-case generated!');
-      await FeatureGenerator.runBuildRunner(projectRoot, _logger);
     } catch (e) {
       progress.fail('Generation failed: $e');
       return 1;

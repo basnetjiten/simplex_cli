@@ -1,3 +1,4 @@
+// Author: Jiten Basnet
 import 'dart:io';
 import 'dart:isolate';
 
@@ -32,6 +33,7 @@ class FeatureGenerator {
       'use_graphql': apiType == 'graphql',
       'use_paging': usePaging,
       'generate_tests': generateTests,
+      'created_at': DateTime.now().toString().split('.').first,
     };
 
     await generator.generate(
@@ -175,6 +177,7 @@ class FeatureGenerator {
       'feature_name': featureName,
       'feature_class': featureClass,
       'package_name': config.packageName,
+      'created_at': DateTime.now().toString().split('.').first,
       ...additionalVars,
     };
 

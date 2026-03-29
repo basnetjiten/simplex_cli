@@ -1,3 +1,4 @@
+// Author: Jiten Basnet
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
@@ -5,7 +6,6 @@ import 'package:interact/interact.dart' hide Progress;
 import 'package:mason_logger/mason_logger.dart';
 import 'package:path/path.dart' as p;
 import 'package:simplex_cli/src/config/simplex_config.dart';
-import 'package:simplex_cli/src/generators/feature_generator.dart';
 import 'package:simplex_cli/src/utils/case_utils.dart';
 
 class AddPagingCommand extends Command<int> {
@@ -82,7 +82,6 @@ class AddPagingCommand extends Command<int> {
       final String updatedContent = _injectPagingMethod(content, className);
       cubitFile.writeAsStringSync(updatedContent);
       progress.complete('Pagination method added to ${p.basename(cubitFile.path)}!');
-      await FeatureGenerator.runBuildRunner(projectRoot, _logger);
       
       _logger.info('');
       _logger.info('Note: Make sure to add needed imports if not present:');

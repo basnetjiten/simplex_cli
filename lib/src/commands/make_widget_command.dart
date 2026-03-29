@@ -1,3 +1,4 @@
+// Author: Jiten Basnet
 import 'package:args/command_runner.dart';
 import 'package:interact/interact.dart' hide Progress;
 import 'package:mason_logger/mason_logger.dart';

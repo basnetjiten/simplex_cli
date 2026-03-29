@@ -1,3 +1,6 @@
+/// Created on: {{created_at}}
+/// Generated with Simplex CLI
+
 import 'package:flutter/material.dart';
 
 class {{widget_class}} extends StatelessWidget {

@@ -1,3 +1,4 @@
+// Author: Jiten Basnet
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
@@ -123,7 +124,6 @@ class ConvertCommand extends Command<int> {
       }
 
       progress.complete('Converted $featureName to $targetApi!');
-      await FeatureGenerator.runBuildRunner(projectRoot, _logger);
     } catch (e) {
       progress.fail('Conversion failed: $e');
       return 1;

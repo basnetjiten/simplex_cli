@@ -1,3 +1,4 @@
+// Author: Jiten Basnet
 import 'package:args/command_runner.dart';
 import 'package:interact/interact.dart' hide Progress;
 import 'package:mason_logger/mason_logger.dart';
@@ -8,11 +9,17 @@ import 'package:simplex_cli/src/utils/path_aware_resolver.dart';
 
 class MakePageCommand extends Command<int> {
   MakePageCommand({required Logger logger}) : _logger = logger {
-    argParser.addFlag(
-      'paging',
-      help: 'Wrap the page body with PagingCubit.',
-      defaultsTo: null,
-    );
+    argParser
+      ..addOption(
+        'feature',
+        abbr: 'f',
+        help: 'Target feature name (snake_case). Inferred from CWD if omitted.',
+      )
+      ..addFlag(
+        'paging',
+        help: 'Wrap the page body with PagingCubit.',
+        defaultsTo: null,
+      );
   }
 
   final Logger _logger;
@@ -23,8 +30,8 @@ class MakePageCommand extends Command<int> {
   @override
   String get description =>
       'Create a new Page widget for a feature.\n'
-      'Example: simplex make:page Login\n'
-      '         simplex make:page ProductList --paging\n'
+      'Example: simplex make:page login\n'
+      '         simplex make:page product_list --paging\n'
       'Path-aware: run from inside a feature folder to skip the feature prompt.';
 
   @override
@@ -44,7 +51,7 @@ class MakePageCommand extends Command<int> {
     // ── Resolve name (positional) ────────────────────────────────────────────
     final String rawName = argResults!.rest.isNotEmpty
         ? argResults!.rest.first
-        : Input(prompt: 'Page name (PascalCase, e.g. Login)').interact();
+        : Input(prompt: 'Page name (snake_case, e.g. login)').interact();
 
     final String pageClass = toUpperCamelCase(snakeCase(rawName));
 
@@ -52,6 +59,7 @@ class MakePageCommand extends Command<int> {
     final String featureName = resolveFeatureName(
       config: config,
       projectRoot: projectRoot,
+      argValue: argResults?['feature'] as String?,
     );
 
     final bool usePaging = argResults?.wasParsed('paging') == true
@@ -80,7 +88,6 @@ class MakePageCommand extends Command<int> {
         },
       );
       progress.complete('${pageClass}Page generated!');
-      await FeatureGenerator.runBuildRunner(projectRoot, _logger);
     } catch (e) {
       progress.fail('Generation failed: $e');
       return 1;
