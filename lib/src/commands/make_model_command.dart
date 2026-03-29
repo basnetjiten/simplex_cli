@@ -29,8 +29,7 @@ class MakeModelCommand extends Command<int> {
   String get name => 'make:model';
 
   @override
-  String get description =>
-      'Create a new freezed Data Model inside a feature\'s data/models/ folder.\n'
+  String get description => 'Create a new freezed Data Model inside a feature\'s data/models/ folder.\n'
       'Example: simplex make:model nurse_response\n'
       '         simplex make:model user_profile --api rest\n'
       'Name must be snake_case (e.g. nurse_response, not NurseResponse).\n'
@@ -50,10 +49,11 @@ class MakeModelCommand extends Command<int> {
       return 1;
     }
 
+    final bool isInteractive = globalResults?['interactive'] as bool? ?? true;
+
     // ── Resolve name (positional) ────────────────────────────────────────────
     // Name must be snake_case — the generated class will be PascalCase.
-    bool isSnakeCase(String v) =>
-        RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(v.trim());
+    bool isSnakeCase(String v) => RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(v.trim());
 
     String rawName;
     if (argResults!.rest.isNotEmpty) {
@@ -65,7 +65,7 @@ class MakeModelCommand extends Command<int> {
         );
         return 1;
       }
-    } else {
+    } else if (isInteractive) {
       rawName = Input(
         prompt: 'Model name (snake_case, e.g. nurse_response)',
         validator: (String val) {
@@ -74,6 +74,11 @@ class MakeModelCommand extends Command<int> {
           return true;
         },
       ).interact().trim();
+    } else {
+      throw UsageException(
+        'Model name is required as a positional argument in non-interactive mode.',
+        usage,
+      );
     }
 
     final String modelClass = toUpperCamelCase(rawName);
@@ -84,6 +89,7 @@ class MakeModelCommand extends Command<int> {
       config: config,
       projectRoot: projectRoot,
       argValue: argResults?['feature'] as String?,
+      interactive: isInteractive,
     );
 
     final String apiType = argResults?['api'] as String? ?? config.defaultApi;

@@ -18,8 +18,7 @@ class SimplexConfig {
 
   factory SimplexConfig.fromYaml(Map<dynamic, dynamic> yaml) {
     final Map<String, dynamic> featuresRaw =
-        (yaml['features'] as Map<dynamic, dynamic>? ?? <dynamic, dynamic>{})
-            .cast<String, dynamic>();
+        (yaml['features'] as Map<dynamic, dynamic>? ?? <dynamic, dynamic>{}).cast<String, dynamic>();
 
     final Map<String, FeatureConfig> features = featuresRaw.map(
       (String key, dynamic value) => MapEntry(

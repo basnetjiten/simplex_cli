@@ -28,8 +28,7 @@ class MakePageCommand extends Command<int> {
   String get name => 'make:page';
 
   @override
-  String get description =>
-      'Create a new Page widget for a feature.\n'
+  String get description => 'Create a new Page widget for a feature.\n'
       'Example: simplex make:page login\n'
       '         simplex make:page product_list --paging\n'
       'Path-aware: run from inside a feature folder to skip the feature prompt.';
@@ -48,10 +47,20 @@ class MakePageCommand extends Command<int> {
       return 1;
     }
 
+    final bool isInteractive = globalResults?['interactive'] as bool? ?? true;
+
     // ── Resolve name (positional) ────────────────────────────────────────────
-    final String rawName = argResults!.rest.isNotEmpty
-        ? argResults!.rest.first
-        : Input(prompt: 'Page name (snake_case, e.g. login)').interact();
+    final String rawName;
+    if (argResults!.rest.isNotEmpty) {
+      rawName = argResults!.rest.first;
+    } else if (isInteractive) {
+      rawName = Input(prompt: 'Page name (snake_case, e.g. login)').interact();
+    } else {
+      throw UsageException(
+        'Page name is required as a positional argument in non-interactive mode.',
+        usage,
+      );
+    }
 
     final String pageClass = toUpperCamelCase(snakeCase(rawName));
 
@@ -60,14 +69,17 @@ class MakePageCommand extends Command<int> {
       config: config,
       projectRoot: projectRoot,
       argValue: argResults?['feature'] as String?,
+      interactive: isInteractive,
     );
 
     final bool usePaging = argResults?.wasParsed('paging') == true
         ? argResults!['paging'] as bool
-        : Confirm(
-            prompt: 'Enable pagination (PagingCubit)?',
-            defaultValue: false,
-          ).interact();
+        : (isInteractive
+            ? Confirm(
+                prompt: 'Enable pagination (PagingCubit)?',
+                defaultValue: false,
+              ).interact()
+            : false);
 
     _logger.info('');
     _logger.info(lightCyan.wrap('✨  Simplex — make:page')!);

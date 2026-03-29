@@ -44,15 +44,20 @@ class InitCommand extends Command<int> {
   String get name => 'init';
 
   @override
-  String get description =>
-      'Configure simplex_cli (e.g. simplex init)';
+  String get description => 'Configure simplex_cli (e.g. simplex init)';
 
   @override
   Future<int> run() async {
     final String projectRoot = Directory.current.path;
     final String configPath = p.join(projectRoot, 'simplex.yaml');
 
+    final bool isInteractive = globalResults?['interactive'] as bool? ?? true;
+
     if (File(configPath).existsSync()) {
+      if (!isInteractive) {
+        _logger.info('simplex.yaml already exists. Skipping init in non-interactive mode.');
+        return 0;
+      }
       final bool overwrite = Confirm(
         prompt: 'simplex.yaml already exists. Overwrite?',
         defaultValue: false,
@@ -79,37 +84,47 @@ class InitCommand extends Command<int> {
     }
 
     final String projectName = argResults?['project-name'] as String? ??
-        Input(
-          prompt: 'Project name',
-          defaultValue: defaultProjectName,
-        ).interact();
+        (isInteractive
+            ? Input(
+                prompt: 'Project name',
+                defaultValue: defaultProjectName,
+              ).interact()
+            : defaultProjectName);
 
     final String packageName = argResults?['package-name'] as String? ??
-        Input(
-          prompt: 'Package name (used in imports)',
-          defaultValue: defaultProjectName,
-        ).interact();
+        (isInteractive
+            ? Input(
+                prompt: 'Package name (used in imports)',
+                defaultValue: defaultProjectName,
+              ).interact()
+            : defaultProjectName);
 
     final String featuresPath = argResults?['features-path'] as String? ??
-        Input(
-          prompt: 'Features path',
-          defaultValue: 'lib/features',
-        ).interact();
+        (isInteractive
+            ? Input(
+                prompt: 'Features path',
+                defaultValue: 'lib/features',
+              ).interact()
+            : 'lib/features');
 
     final String testPath = argResults?['test-path'] as String? ??
-        Input(
-          prompt: 'Test path',
-          defaultValue: 'test/features',
-        ).interact();
+        (isInteractive
+            ? Input(
+                prompt: 'Test path',
+                defaultValue: 'test/features',
+              ).interact()
+            : 'test/features');
 
     final List<String> apiChoices = <String>['graphql', 'rest'];
     String? apiTypeMatch = argResults?['default-api'] as String?;
     final int apiIndex = apiTypeMatch != null
         ? apiChoices.indexOf(apiTypeMatch)
-        : Select(
-            prompt: 'Default API type for new features',
-            options: apiChoices,
-          ).interact();
+        : (isInteractive
+            ? Select(
+                prompt: 'Default API type for new features',
+                options: apiChoices,
+              ).interact()
+            : 0);
 
     final SimplexConfig config = SimplexConfig(
       projectName: projectName,

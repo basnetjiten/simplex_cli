@@ -28,8 +28,7 @@ class MakeCubitCommand extends Command<int> {
   String get name => 'make:cubit';
 
   @override
-  String get description =>
-      'Create a new SimplexCubit and State for a feature.\n'
+  String get description => 'Create a new SimplexCubit and State for a feature.\n'
       'Example: simplex make:cubit Counter\n'
       '         simplex make:cubit ProductList --paging\n'
       'Path-aware: run from inside a feature folder to skip the feature prompt.';
@@ -51,10 +50,20 @@ class MakeCubitCommand extends Command<int> {
       return 1;
     }
 
+    final bool isInteractive = globalResults?['interactive'] as bool? ?? true;
+
     // ── Resolve name (positional) ────────────────────────────────────────────
-    final String rawName = argResults!.rest.isNotEmpty
-        ? argResults!.rest.first
-        : Input(prompt: 'Cubit name (PascalCase, e.g. Counter)').interact();
+    final String rawName;
+    if (argResults!.rest.isNotEmpty) {
+      rawName = argResults!.rest.first;
+    } else if (isInteractive) {
+      rawName = Input(prompt: 'Cubit name (PascalCase, e.g. Counter)').interact();
+    } else {
+      throw UsageException(
+        'Cubit name is required as a positional argument in non-interactive mode.',
+        usage,
+      );
+    }
 
     final String cubitClass = toUpperCamelCase(snakeCase(rawName));
 
@@ -63,11 +72,12 @@ class MakeCubitCommand extends Command<int> {
       config: config,
       projectRoot: projectRoot,
       argValue: argResults?['feature'] as String?,
+      interactive: isInteractive,
     );
 
     final bool usePaging = argResults?.wasParsed('paging') == true
         ? argResults!['paging'] as bool
-        : Confirm(prompt: 'Enable pagination (PagingCubit)?', defaultValue: false).interact();
+        : (isInteractive ? Confirm(prompt: 'Enable pagination (PagingCubit)?', defaultValue: false).interact() : false);
 
     _logger.info('');
     _logger.info(lightCyan.wrap('✨  Simplex — make:cubit')!);

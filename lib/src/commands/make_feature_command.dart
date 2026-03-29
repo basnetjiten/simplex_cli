@@ -28,8 +28,7 @@ class MakeFeatureCommand extends Command<int> {
   String get name => 'make:feature';
 
   @override
-  String get description =>
-      'Scaffold a complete Clean Architecture feature module (data, domain, presentation).\n'
+  String get description => 'Scaffold a complete Clean Architecture feature module (data, domain, presentation).\n'
       'Example: simplex make:feature Auth\n'
       '         simplex make:feature products --api rest --paging --no-tests';
 
@@ -55,13 +54,23 @@ class MakeFeatureCommand extends Command<int> {
     _logger.info(lightCyan.wrap('✨  Simplex — make:feature')!);
     _logger.info('');
 
+    final bool isInteractive = globalResults?['interactive'] as bool? ?? true;
+
     // ── Resolve name (positional) ─────────────────────────────────────────────
-    final String rawName = argResults!.rest.isNotEmpty
-        ? argResults!.rest.first
-        : Input(
-            prompt: 'Feature name (PascalCase or snake_case)',
-            validator: (String val) => val.trim().isNotEmpty,
-          ).interact();
+    final String rawName;
+    if (argResults!.rest.isNotEmpty) {
+      rawName = argResults!.rest.first;
+    } else if (isInteractive) {
+      rawName = Input(
+        prompt: 'Feature name (PascalCase or snake_case)',
+        validator: (String val) => val.trim().isNotEmpty,
+      ).interact();
+    } else {
+      throw UsageException(
+        'Feature name is required as a positional argument in non-interactive mode.',
+        usage,
+      );
+    }
 
     final String cleanName = snakeCase(rawName.trim());
     final String featureClass = toUpperCamelCase(cleanName);
@@ -70,32 +79,42 @@ class MakeFeatureCommand extends Command<int> {
     final List<String> apiChoices = <String>['graphql', 'rest'];
     final int defaultApiIndex = apiChoices.indexOf(config.defaultApi);
     final String apiType = argResults?['api'] as String? ??
-        apiChoices[
-            Select(
-              prompt: 'API type',
-              options: apiChoices,
-              initialIndex: defaultApiIndex >= 0 ? defaultApiIndex : 0,
-            ).interact()];
+        (isInteractive
+            ? apiChoices[Select(
+                prompt: 'API type',
+                options: apiChoices,
+                initialIndex: defaultApiIndex >= 0 ? defaultApiIndex : 0,
+              ).interact()]
+            : config.defaultApi);
 
     // ── Paging ────────────────────────────────────────────────────────────────
     final bool usePaging = argResults?.wasParsed('paging') == true
         ? argResults!['paging'] as bool
-        : Confirm(
-            prompt: 'Enable pagination (PagingCubit)?',
-            defaultValue: false,
-          ).interact();
+        : (isInteractive
+            ? Confirm(
+                prompt: 'Enable pagination (PagingCubit)?',
+                defaultValue: false,
+              ).interact()
+            : false);
 
     // ── Tests ─────────────────────────────────────────────────────────────────
     final bool generateTests = argResults?.wasParsed('tests') == true
         ? argResults!['tests'] as bool
-        : Confirm(
-            prompt: 'Generate test stubs?',
-            defaultValue: true,
-          ).interact();
+        : (isInteractive
+            ? Confirm(
+                prompt: 'Generate test stubs?',
+                defaultValue: true,
+              ).interact()
+            : true);
 
     // ── Conflict check ────────────────────────────────────────────────────────
     final String featureDir = p.join(projectRoot, config.featuresPath, cleanName);
     if (Directory(featureDir).existsSync()) {
+      if (!isInteractive) {
+        throw StateError(
+          "Feature '$cleanName' already exists. Cannot overwrite in non-interactive mode.",
+        );
+      }
       final bool overwrite = Confirm(
         prompt: "Feature '$cleanName' already exists. Overwrite?",
         defaultValue: false,
@@ -132,9 +151,8 @@ class MakeFeatureCommand extends Command<int> {
     }
 
     // ── Persist feature registry ──────────────────────────────────────────────
-    final Map<String, FeatureConfig> updatedFeatures =
-        Map<String, FeatureConfig>.from(config.features)
-          ..[cleanName] = FeatureConfig(api: apiType, paging: usePaging);
+    final Map<String, FeatureConfig> updatedFeatures = Map<String, FeatureConfig>.from(config.features)
+      ..[cleanName] = FeatureConfig(api: apiType, paging: usePaging);
     saveConfig(projectRoot, config.copyWith(features: updatedFeatures));
 
     _logger.info('');

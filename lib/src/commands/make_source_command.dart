@@ -40,8 +40,7 @@ class MakeSourceCommand extends Command<int> {
   String get name => 'make:source';
 
   @override
-  String get description =>
-      'Create a remote source interface (domain/) and/or concrete implementation (data/).\n'
+  String get description => 'Create a remote source interface (domain/) and/or concrete implementation (data/).\n'
       'Example: simplex make:source auth\n'
       '         simplex make:source user -a (interface only)\n'
       'Path-aware: run from inside a feature folder to skip the feature prompt.';
@@ -60,9 +59,10 @@ class MakeSourceCommand extends Command<int> {
       return 1;
     }
 
+    final bool isInteractive = globalResults?['interactive'] as bool? ?? true;
+
     // ── Resolve name (positional) ────────────────────────────────────────────
-    bool isSnakeCase(String v) =>
-        RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(v.trim());
+    bool isSnakeCase(String v) => RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(v.trim());
 
     String rawName;
     if (argResults!.rest.isNotEmpty) {
@@ -74,7 +74,7 @@ class MakeSourceCommand extends Command<int> {
         );
         return 1;
       }
-    } else {
+    } else if (isInteractive) {
       rawName = Input(
         prompt: 'Source name (snake_case, e.g. auth)',
         validator: (String val) {
@@ -83,6 +83,11 @@ class MakeSourceCommand extends Command<int> {
           return true;
         },
       ).interact().trim();
+    } else {
+      throw UsageException(
+        'Source name is required as a positional argument in non-interactive mode.',
+        usage,
+      );
     }
 
     final String sourceClass = toUpperCamelCase(rawName);
@@ -93,6 +98,7 @@ class MakeSourceCommand extends Command<int> {
       config: config,
       projectRoot: projectRoot,
       argValue: argResults?['feature'] as String?,
+      interactive: isInteractive,
     );
 
     final String apiType = argResults?['api'] as String? ?? config.defaultApi;
@@ -117,7 +123,8 @@ class MakeSourceCommand extends Command<int> {
     _logger.info('  Feature : ${cyan.wrap(featureName)}');
     _logger.info('  Source  : ${cyan.wrap('${sourceClass}RemoteSource')}');
     _logger.info('  API     : ${cyan.wrap(apiType)}');
-    _logger.info('  Scope   : ${createAbstract && createImpl ? "Both" : (createAbstract ? "Abstract Only" : "Implementation Only")}');
+    _logger.info(
+        '  Scope   : ${createAbstract && createImpl ? "Both" : (createAbstract ? "Abstract Only" : "Implementation Only")}');
     _logger.info('');
 
     final Progress progress = _logger.progress('Generating Source...');
