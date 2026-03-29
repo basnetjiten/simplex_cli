@@ -23,7 +23,7 @@ class MakeFeatureCommand extends Command<int> {
       ..addFlag(
         'tests',
         abbr: 't',
-        help: 'Generate tests for the feature.',
+        help: 'Generate tests for the feature (default: false).',
         defaultsTo: null,
       );
   }
@@ -94,7 +94,7 @@ class MakeFeatureCommand extends Command<int> {
 
     final bool generateTests = argResults?.wasParsed('tests') == true
         ? argResults!['tests'] as bool
-        : (isInteractive ? Confirm(prompt: 'Generate unit tests?', defaultValue: true).interact() : true);
+        : (isInteractive ? Confirm(prompt: 'Generate unit tests?', defaultValue: false).interact() : false);
 
     _logger.info('');
     _logger.info(lightCyan.wrap('✨  Simplex — make:feature')!);

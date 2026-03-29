@@ -11,3 +11,6 @@ features:
   test_feature:
     api: "rest"
     paging: false
+  test_no_tests:
+    api: "rest"
+    paging: false
