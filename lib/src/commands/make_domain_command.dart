@@ -6,26 +6,20 @@ import 'package:simplex_cli/src/generators/feature_generator.dart';
 import 'package:simplex_cli/src/utils/case_utils.dart';
 import 'package:simplex_cli/src/utils/path_aware_resolver.dart';
 
-class MakePageCommand extends Command<int> {
-  MakePageCommand({required Logger logger}) : _logger = logger {
-    argParser.addFlag(
-      'paging',
-      help: 'Wrap the page body with PagingCubit.',
-      defaultsTo: null,
-    );
-  }
+class MakeDomainCommand extends Command<int> {
+  MakeDomainCommand({required Logger logger}) : _logger = logger;
 
   final Logger _logger;
 
   @override
-  String get name => 'make:page';
+  String get name => 'make:domain';
 
   @override
   String get description =>
-      'Create a new Page widget for a feature.\n'
-      'Example: simplex make:page Login\n'
-      '         simplex make:page ProductList --paging\n'
-      'Path-aware: run from inside a feature folder to skip the feature prompt.';
+      'Create a domain entity (freezed) + a use-case stub for a feature.\n'
+      'Example: simplex make:domain User\n'
+      'Path-aware: run from inside a feature folder to skip the feature prompt.\n'
+      'Requires an existing feature. Run \'simplex make:feature\' first if none exist.';
 
   @override
   Future<int> run() async {
@@ -41,12 +35,23 @@ class MakePageCommand extends Command<int> {
       return 1;
     }
 
+    // ── Guard: must have at least one registered feature ─────────────────────
+    if (config.features.isEmpty) {
+      _logger.err(
+        'No features registered in simplex.yaml.\n'
+        "Run 'simplex make:feature <Name>' first to scaffold a feature, "
+        'then add domain objects to it.',
+      );
+      return 1;
+    }
+
     // ── Resolve name (positional) ────────────────────────────────────────────
     final String rawName = argResults!.rest.isNotEmpty
         ? argResults!.rest.first
-        : Input(prompt: 'Page name (PascalCase, e.g. Login)').interact();
+        : Input(prompt: 'Entity name (PascalCase, e.g. User)').interact();
 
-    final String pageClass = toUpperCamelCase(snakeCase(rawName));
+    final String entityClass = toUpperCamelCase(snakeCase(rawName));
+    final String entitySnake = snakeCase(rawName);
 
     // ── Resolve feature (path-aware) ─────────────────────────────────────────
     final String featureName = resolveFeatureName(
@@ -54,32 +59,33 @@ class MakePageCommand extends Command<int> {
       projectRoot: projectRoot,
     );
 
-    final bool usePaging = argResults?.wasParsed('paging') == true
-        ? argResults!['paging'] as bool
-        : Confirm(
-            prompt: 'Enable pagination (PagingCubit)?',
-            defaultValue: false,
-          ).interact();
-
     _logger.info('');
-    _logger.info(lightCyan.wrap('✨  Simplex — make:page')!);
+    _logger.info(lightCyan.wrap('✨  Simplex — make:domain')!);
     _logger.info('  Feature : ${cyan.wrap(featureName)}');
-    _logger.info('  Page    : ${cyan.wrap('${pageClass}Page')}');
+    _logger.info('  Entity  : ${cyan.wrap(entityClass)}');
+    _logger.info('  Creates :');
+    _logger.info(
+      '    ${darkGray.wrap('domain/entities/')}${cyan.wrap('$entitySnake.dart')}  (freezed entity)',
+    );
+    _logger.info(
+      '    ${darkGray.wrap('domain/usecases/')}${cyan.wrap('get_${entitySnake}_usecase.dart')}  (use-case stub)',
+    );
     _logger.info('');
 
-    final Progress progress = _logger.progress('Generating Page...');
+    final Progress progress = _logger.progress('Generating Domain objects...');
     try {
       await FeatureGenerator.generateComponent(
         projectRoot: projectRoot,
         config: config,
-        brickName: 'page',
+        brickName: 'domain',
         featureName: featureName,
-        featureClass: pageClass,
+        featureClass: entityClass,
         additionalVars: <String, dynamic>{
-          'use_paging': usePaging,
+          'entity_name': entitySnake,
+          'entity_class': entityClass,
         },
       );
-      progress.complete('${pageClass}Page generated!');
+      progress.complete('$entityClass entity + use-case generated!');
       await FeatureGenerator.runBuildRunner(projectRoot, _logger);
     } catch (e) {
       progress.fail('Generation failed: $e');

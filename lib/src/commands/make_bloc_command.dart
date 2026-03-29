@@ -6,25 +6,18 @@ import 'package:simplex_cli/src/generators/feature_generator.dart';
 import 'package:simplex_cli/src/utils/case_utils.dart';
 import 'package:simplex_cli/src/utils/path_aware_resolver.dart';
 
-class MakePageCommand extends Command<int> {
-  MakePageCommand({required Logger logger}) : _logger = logger {
-    argParser.addFlag(
-      'paging',
-      help: 'Wrap the page body with PagingCubit.',
-      defaultsTo: null,
-    );
-  }
+class MakeBlocCommand extends Command<int> {
+  MakeBlocCommand({required Logger logger}) : _logger = logger;
 
   final Logger _logger;
 
   @override
-  String get name => 'make:page';
+  String get name => 'make:bloc';
 
   @override
   String get description =>
-      'Create a new Page widget for a feature.\n'
-      'Example: simplex make:page Login\n'
-      '         simplex make:page ProductList --paging\n'
+      'Create a flutter_bloc Bloc (with Event + State) for a feature.\n'
+      'Example: simplex make:bloc Auth\n'
       'Path-aware: run from inside a feature folder to skip the feature prompt.';
 
   @override
@@ -44,9 +37,10 @@ class MakePageCommand extends Command<int> {
     // ── Resolve name (positional) ────────────────────────────────────────────
     final String rawName = argResults!.rest.isNotEmpty
         ? argResults!.rest.first
-        : Input(prompt: 'Page name (PascalCase, e.g. Login)').interact();
+        : Input(prompt: 'Bloc name (PascalCase, e.g. Auth)').interact();
 
-    final String pageClass = toUpperCamelCase(snakeCase(rawName));
+    final String blocClass = toUpperCamelCase(snakeCase(rawName));
+    final String blocSnake = snakeCase(rawName);
 
     // ── Resolve feature (path-aware) ─────────────────────────────────────────
     final String featureName = resolveFeatureName(
@@ -54,32 +48,26 @@ class MakePageCommand extends Command<int> {
       projectRoot: projectRoot,
     );
 
-    final bool usePaging = argResults?.wasParsed('paging') == true
-        ? argResults!['paging'] as bool
-        : Confirm(
-            prompt: 'Enable pagination (PagingCubit)?',
-            defaultValue: false,
-          ).interact();
-
     _logger.info('');
-    _logger.info(lightCyan.wrap('✨  Simplex — make:page')!);
+    _logger.info(lightCyan.wrap('✨  Simplex — make:bloc')!);
     _logger.info('  Feature : ${cyan.wrap(featureName)}');
-    _logger.info('  Page    : ${cyan.wrap('${pageClass}Page')}');
+    _logger.info('  Bloc    : ${cyan.wrap('${blocClass}Bloc')}');
     _logger.info('');
 
-    final Progress progress = _logger.progress('Generating Page...');
+    final Progress progress = _logger.progress('Generating Bloc...');
     try {
       await FeatureGenerator.generateComponent(
         projectRoot: projectRoot,
         config: config,
-        brickName: 'page',
+        brickName: 'bloc',
         featureName: featureName,
-        featureClass: pageClass,
+        featureClass: blocClass,
         additionalVars: <String, dynamic>{
-          'use_paging': usePaging,
+          'bloc_name': blocSnake,
+          'bloc_class': blocClass,
         },
       );
-      progress.complete('${pageClass}Page generated!');
+      progress.complete('${blocClass}Bloc generated!');
       await FeatureGenerator.runBuildRunner(projectRoot, _logger);
     } catch (e) {
       progress.fail('Generation failed: $e');
