@@ -1,3 +1,6 @@
+/// Created on: {{created_at}}
+/// Generated with Simplex CLI
+
 part of '{{feature_name}}_cubit.dart';
 
 @freezed

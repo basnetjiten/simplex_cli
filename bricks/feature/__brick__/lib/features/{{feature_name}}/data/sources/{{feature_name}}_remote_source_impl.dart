@@ -1,3 +1,6 @@
+/// Created on: {{created_at}}
+/// Generated with Simplex CLI
+
 {{#use_graphql}}
 import 'package:{{package_name}}/features/{{feature_name}}/domain/sources/{{feature_name}}_source.dart';
 import 'package:simplex/base/simplex_base_remote_source.dart';

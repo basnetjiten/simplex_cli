@@ -1,3 +1,6 @@
+/// Created on: {{created_at}}
+/// Generated with Simplex CLI
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:{{package_name}}/features/{{feature_name}}/data/models/{{feature_name}}_model.dart';
 import 'package:{{package_name}}/features/{{feature_name}}/data/sources/{{feature_name}}_remote_source_impl.dart';

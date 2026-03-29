@@ -1,3 +1,6 @@
+/// Created on: {{created_at}}
+/// Generated with Simplex CLI
+
 import 'package:{{package_name}}/features/{{feature_name}}/data/models/{{feature_name}}_model.dart';
 import 'package:{{package_name}}/features/{{feature_name}}/domain/repositories/{{feature_name}}_repository.dart';
 import 'package:{{package_name}}/features/{{feature_name}}/domain/sources/{{feature_name}}_source.dart';

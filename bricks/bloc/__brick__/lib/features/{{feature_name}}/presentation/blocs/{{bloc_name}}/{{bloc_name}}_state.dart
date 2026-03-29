@@ -1,3 +1,6 @@
+/// Created on: {{created_at}}
+/// Generated with Simplex CLI
+
 part of '{{bloc_name}}_bloc.dart';
 
 
