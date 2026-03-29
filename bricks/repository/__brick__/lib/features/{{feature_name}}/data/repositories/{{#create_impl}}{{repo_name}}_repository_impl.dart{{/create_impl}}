@@ -18,7 +18,7 @@ class {{repo_class}}RepositoryImpl extends SimplexBaseRepository
   @override
   EitherResponse<{{repo_name}}Model> get{{repo_class}}() => processApiCall(
         call: _{{repo_name}}RemoteSource.get{{repo_class}}(),
-        onSuccess: (dynamic data) => data,
+        onSuccess: ({{repo_name}}Model data) => data,
       );
 }
 
