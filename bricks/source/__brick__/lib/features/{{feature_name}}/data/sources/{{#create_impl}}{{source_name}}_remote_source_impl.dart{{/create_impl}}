@@ -14,7 +14,14 @@ class {{source_class}}RemoteSourceImpl extends SimplexGraphqlRemoteSource implem
 
   @override
   Future<Unit> get{{source_class}}() async {
-    // TODO: build and execute Ferry request
+ // TODO: build the Ferry request and execute:
+ // final GForgotPasswordReq forgotMutation = GForgotPasswordReq(
+ //   (GForgotPasswordReqBuilder b) => b
+ //     ..vars.body.deviceId = deviceId
+ //     ..vars.body.email = email,
+ // );
+ //
+ // return executeGraphqlApiCall(forgotMutation);
     throw UnimplementedError('get{{source_class}} not implemented yet');
   }
 }
