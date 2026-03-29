@@ -24,6 +24,18 @@ class MakeRepoCommand extends Command<int> {
         'impl-only',
         help: 'Only generate the implementation in data.',
         negatable: false,
+      )
+      ..addFlag(
+        'source',
+        abbr: 's',
+        help: 'Generate a remote data source alongside the repository.',
+        defaultsTo: true,
+      )
+      ..addFlag(
+        'model',
+        abbr: 'm',
+        help: 'Generate a data model alongside the repository.',
+        defaultsTo: true,
       );
   }
 
@@ -33,7 +45,7 @@ class MakeRepoCommand extends Command<int> {
   String get name => 'make:repo';
 
   @override
-  String get description => 'Create a repository (abstract + impl) for a feature.\n'
+  String get description => 'Create a repository (abstract + impl) with its source and model.\n'
       'Example: simplex make:repo auth\n'
       'Path-aware: run from inside a feature folder to skip the feature prompt.';
 
@@ -61,16 +73,16 @@ class MakeRepoCommand extends Command<int> {
     if (argResults!.rest.isNotEmpty) {
       rawName = argResults!.rest.first;
     } else if (isInteractive) {
-      rawName = Input(prompt: 'Repository name (snake_case, e.g. auth)').interact();
+      rawName = Input(prompt: 'Component name (snake_case, e.g. auth)').interact();
     } else {
       throw UsageException(
-        'Repository name is required as a positional argument in non-interactive mode.',
+        'Component name is required as a positional argument in non-interactive mode.',
         usage,
       );
     }
 
-    final String repoSnake = snakeCase(rawName);
-    final String repoClass = toUpperCamelCase(repoSnake);
+    final String baseSnake = snakeCase(rawName);
+    final String baseClass = toUpperCamelCase(baseSnake);
 
     // ── Resolve feature (path-aware) ─────────────────────────────────────────
     final String featureName = resolveFeatureName(
@@ -82,6 +94,8 @@ class MakeRepoCommand extends Command<int> {
 
     final bool abstractOnly = argResults?['abstract-only'] as bool? ?? false;
     final bool implOnly = argResults?['impl-only'] as bool? ?? false;
+    final bool createSource = argResults?['source'] as bool? ?? true;
+    final bool createModel = argResults?['model'] as bool? ?? true;
 
     if (abstractOnly && implOnly) {
       _logger.err('Cannot use both --abstract-only and --impl-only.');
@@ -90,29 +104,70 @@ class MakeRepoCommand extends Command<int> {
 
     final bool createAbstract = !implOnly;
     final bool createImpl = !abstractOnly;
+    final bool useGraphql = config.features[featureName]?.api == 'graphql' || (config.features[featureName] == null && config.defaultApi == 'graphql');
 
     _logger.info('');
-    _logger.info(lightCyan.wrap('✨  Simplex — make:repo')!);
+    _logger.info(lightCyan.wrap('✨  Simplex — make:repo (with data stack)')!);
     _logger.info('  Feature : ${cyan.wrap(featureName)}');
-    _logger.info('  Repo    : ${cyan.wrap(repoClass)}');
-    _logger.info('  Parts   : ${cyan.wrap('${createAbstract ? "Abstract" : ""} ${createImpl ? "Implementation" : ""}'.trim())}');
+    _logger.info('  Base    : ${cyan.wrap(baseClass)}');
+    _logger.info('  Repo    : ${cyan.wrap('${createAbstract ? "Abstract" : ""} ${createImpl ? "Implementation" : ""}'.trim())}');
+    _logger.info('  Source  : ${cyan.wrap(createSource.toString())}');
+    _logger.info('  Model   : ${cyan.wrap(createModel.toString())}');
     _logger.info('');
 
-    final Progress progress = _logger.progress('Generating Repository...');
+    final Progress progress = _logger.progress('Generating Repository components...');
     try {
+      // 1. Generate Repository
       await FeatureGenerator.generateComponent(
         projectRoot: projectRoot,
         config: config,
         brickName: 'repository',
         featureName: featureName,
-        featureClass: repoClass,
+        featureClass: baseClass,
         additionalVars: <String, dynamic>{
-          'repo_name': repoSnake,
+          'repo_name': baseSnake,
+          'repo_class': baseClass,
+          'use_graphql': useGraphql,
           'create_abstract': createAbstract,
           'create_impl': createImpl,
         },
       );
-      progress.complete('$repoClass Repository generated!');
+
+      // 2. Generate Source (if requested)
+      if (createSource && !abstractOnly) {
+        await FeatureGenerator.generateComponent(
+          projectRoot: projectRoot,
+          config: config,
+          brickName: 'source',
+          featureName: featureName,
+          featureClass: baseClass,
+          additionalVars: <String, dynamic>{
+            'source_name': baseSnake,
+            'source_class': baseClass,
+            'use_graphql': useGraphql,
+            'create_abstract': createAbstract,
+            'create_impl': createImpl,
+          },
+        );
+      }
+
+      // 3. Generate Model (if requested)
+      if (createModel && !abstractOnly) {
+        await FeatureGenerator.generateComponent(
+          projectRoot: projectRoot,
+          config: config,
+          brickName: 'model',
+          featureName: featureName,
+          featureClass: baseClass,
+          additionalVars: <String, dynamic>{
+            'model_name': baseSnake,
+            'model_class': baseClass,
+            'use_graphql': useGraphql,
+          },
+        );
+      }
+
+      progress.complete('$baseClass Repository components generated!');
     } catch (e) {
       progress.fail('Generation failed: $e');
       return 1;

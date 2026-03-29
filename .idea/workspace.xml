@@ -4,7 +4,14 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8f0cd5f1-92d6-495f-9907-b59e0f7c562c" name="Changes" comment="" />
+    <list default="true" id="8f0cd5f1-92d6-495f-9907-b59e0f7c562c" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bricks/model/brick.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/bricks/model/brick.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bricks/repository/__brick__/lib/features/{{feature_name}}/domain/repositories/{{#create_abstract}}{{repo_name}}_repository.dart{{/create_abstract}}" beforeDir="false" afterPath="$PROJECT_DIR$/bricks/repository/__brick__/lib/features/{{feature_name}}/domain/repositories/{{#create_abstract}}{{repo_name}}_repository.dart{{/create_abstract}}" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/commands/make_model_command.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/commands/make_model_command.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/commands/make_repo_command.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/commands/make_repo_command.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/commands/make_source_command.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/commands/make_source_command.dart" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

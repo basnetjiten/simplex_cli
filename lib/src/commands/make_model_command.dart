@@ -85,6 +85,7 @@ class MakeModelCommand extends Command<int> {
         featureClass: modelClass,
         additionalVars: <String, dynamic>{
           'model_name': modelSnake,
+          'model_class': modelClass,
         },
       );
       progress.complete('$modelClass generated!');
