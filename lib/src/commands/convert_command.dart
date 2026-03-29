@@ -82,7 +82,9 @@ class ConvertCommand extends Command<int> {
     _logger.info('  To      : $targetApi');
     _logger.info('');
 
-    final bool isInteractive = globalResults?['interactive'] as bool? ?? true;
+    final bool isInteractive = (argResults?['interactive'] as bool?) ??
+        (globalResults?['interactive'] as bool?) ??
+        true;
 
     if (dryRun) {
       _logger.info(yellow.wrap('🔍  Dry run — no files will be written')!);

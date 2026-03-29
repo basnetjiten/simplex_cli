@@ -50,6 +50,17 @@ class SimplexRunner {
       'make:source': MakeSourceCommand(logger: logger),
     };
 
+    // ── Add global-like flags to all commands ────────────────────────────────
+    for (final Command<int> cmd in registry.values) {
+      if (!cmd.argParser.options.containsKey('interactive')) {
+        cmd.argParser.addFlag(
+          'interactive',
+          defaultsTo: true,
+          help: 'Enable or disable interactive prompts.',
+        );
+      }
+    }
+
     // ── Short-circuit for zero args or global help ───────────────────────────
     if (args.isEmpty || args.first == '--help' || args.first == '-h') {
       _printHelp(logger);
