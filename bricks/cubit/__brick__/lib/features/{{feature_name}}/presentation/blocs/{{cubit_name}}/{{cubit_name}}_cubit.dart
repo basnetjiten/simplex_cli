@@ -17,19 +17,19 @@ import 'package:simplex/simplex_base.dart';
 import 'package:fpdart/fpdart.dart';
 {{/use_paging}}
 
-part '{{feature_name}}_cubit.freezed.dart';
-part '{{feature_name}}_state.dart';
+part '{{cubit_name}}_cubit.freezed.dart';
+part '{{cubit_name}}_state.dart';
 
 @injectable
-class {{feature_class}}Cubit extends SimplexCubit<{{feature_class}}State> {
-  {{feature_class}}Cubit(this._repository) : super(const {{feature_class}}State());
+class {{cubit_class}}Cubit extends SimplexCubit<{{cubit_class}}State> {
+  {{cubit_class}}Cubit(this._repository) : super(const {{cubit_class}}State());
 
   final {{feature_class}}Repository _repository;
 
   {{#use_paging}}
   /// Fetch function consumed by [PagingCubit].
   /// Returns a tuple of (items, nextPageKey) — pass null as nextPageKey when there are no more pages.
-  Future<(List<{{feature_class}}Model>, int?)> fetch{{feature_class}}(int page, String? search) async {
+  Future<(List<{{feature_class}}Model>, int?)> fetch{{cubit_class}}(int page, String? search) async {
     final Either<AppError, {{feature_class}}Model> response = await _repository.get{{feature_class}}();
     return response.fold(
       (AppError error) {
@@ -45,7 +45,7 @@ class {{feature_class}}Cubit extends SimplexCubit<{{feature_class}}State> {
   }
   {{/use_paging}}
   {{^use_paging}}
-  Future<void> fetch{{feature_class}}() => handleAPICall(
+  Future<void> fetch{{cubit_class}}() => handleAPICall(
         call: _repository.get{{feature_class}}(),
         onSuccess: ({{feature_class}}Model data) => state.copyWith(
           status: const BlocStatus.success(),

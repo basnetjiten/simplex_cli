@@ -1,18 +1,18 @@
 // Author: Jiten Basnet
-import 'dart:io';
-
 import 'package:args/command_runner.dart';
-import 'package:interact/interact.dart' hide Progress;
 import 'package:mason_logger/mason_logger.dart';
-import 'package:path/path.dart' as p;
 import 'package:simplex_cli/src/config/simplex_config.dart';
+import 'package:simplex_cli/src/generators/feature_generator.dart';
 import 'package:simplex_cli/src/utils/case_utils.dart';
+import 'package:simplex_cli/src/utils/path_aware_resolver.dart';
 
 class AddPagingCommand extends Command<int> {
   AddPagingCommand({required Logger logger}) : _logger = logger {
-    argParser
-      ..addOption('feature', abbr: 'f', help: 'The feature folder containing the cubit.')
-      ..addOption('name', abbr: 'n', help: 'The name of the cubit class to modify (PascalCase).');
+    argParser.addOption(
+      'feature',
+      abbr: 'f',
+      help: 'Target feature name (snake_case). Inferred from CWD if omitted.',
+    );
   }
 
   final Logger _logger;
@@ -21,20 +21,19 @@ class AddPagingCommand extends Command<int> {
   String get name => 'paging';
 
   @override
-  String get description => 'Add Simplex pagination method to an existing Cubit.\n'
-      'Example: simplex add paging -f products -n List';
+  String get description => 'Add paging support (PagingCubit) to an existing feature.';
 
   @override
   Future<int> run() async {
     final String? projectRoot = findProjectRoot();
     if (projectRoot == null) {
-      _logger.err('Could not find project root.');
+      _logger.err('Could not find a Flutter project root.');
       return 1;
     }
 
     final SimplexConfig? config = loadConfig(projectRoot);
     if (config == null) {
-      _logger.err('No simplex.yaml found.');
+      _logger.err("No simplex.yaml found. Run 'simplex init' first.");
       return 1;
     }
 
@@ -43,128 +42,60 @@ class AddPagingCommand extends Command<int> {
         ? (argResults!['interactive'] as bool)
         : config.interactive;
 
-    final String featureName;
-    if (argResults?['feature'] != null) {
-      featureName = argResults!['feature'] as String;
-    } else if (isInteractive) {
-      featureName = Input(prompt: 'Feature name (snake_case)').interact();
-    } else {
-      throw UsageException(
-        'Feature name is required as an option (--feature) in non-interactive mode.',
-        usage,
-      );
-    }
+    // ── Resolve feature name ─────────────────────────────────────────────────
+    final String featureName = resolveFeatureName(
+      config: config,
+      projectRoot: projectRoot,
+      argValue: argResults?['feature'] as String?,
+      interactive: isInteractive,
+    );
 
-    final String cubitName;
-    if (argResults?['name'] != null) {
-      cubitName = argResults!['name'] as String;
-    } else if (isInteractive) {
-      cubitName = Input(prompt: 'Cubit name (PascalCase)').interact();
-    } else {
-      throw UsageException(
-        'Cubit name is required as an option (--name) in non-interactive mode.',
-        usage,
-      );
-    }
-
-    final String className = toUpperCamelCase(cubitName);
-    final String fileName = '${snakeCase(cubitName)}_cubit.dart';
-
-    // Try standard paths
-    final List<String> candidatePaths = <String>[
-      p.join(projectRoot, config.featuresPath, featureName, 'presentation', 'blocs', fileName),
-      p.join(projectRoot, config.featuresPath, featureName, 'presentation', 'cubit', fileName),
-    ];
-
-    File? cubitFile;
-    for (final String path in candidatePaths) {
-      if (File(path).existsSync()) {
-        cubitFile = File(path);
-        break;
-      }
-    }
-
-    if (cubitFile == null) {
-      _logger.err('Could not find cubit file: $fileName in feature $featureName');
+    if (!config.features.containsKey(featureName)) {
+      _logger.err("Feature '$featureName' is not registered in simplex.yaml.");
       return 1;
     }
 
-    final String content = cubitFile.readAsStringSync();
-
-    if (content.contains('Future<(List<')) {
-      _logger.warn('Cubit already appears to have a pagination method.');
-      if (isInteractive) {
-        if (!Confirm(prompt: 'Do you want to overwrite or add another?').interact()) {
-          return 0;
-        }
-      } else {
-        _logger.info('Non-interactive mode: Overwriting existing pagination method.');
-      }
+    final FeatureConfig featureConfig = config.features[featureName]!;
+    if (featureConfig.paging) {
+      _logger.info('Feature $featureName already has paging enabled.');
+      return 0;
     }
 
-    final Progress progress = _logger.progress('Injecting pagination method...');
+    _logger.info('');
+    _logger.info(lightCyan.wrap('✨  Simplex — add paging')!);
+    _logger.info('  Feature : ${cyan.wrap(featureName)}');
+    _logger.info('');
+
+    final Progress progress = _logger.progress('Adding paging support...');
 
     try {
-      final String updatedContent = _injectPagingMethod(content, className);
-      cubitFile.writeAsStringSync(updatedContent);
-      progress.complete('Pagination method added to ${p.basename(cubitFile.path)}!');
+      // Re-run the feature generator with use_paging: true.
+      // Mason will prompt for conflicts or we can overwrite if confident.
+      await FeatureGenerator.generate(
+        projectRoot: projectRoot,
+        config: config,
+        featureName: featureName,
+        featureClass: toUpperCamelCase(featureName),
+        apiType: featureConfig.api,
+        usePaging: true,
+        generateTests: true, // Re-generate tests with paging support
+      );
 
-      _logger.info('');
-      _logger.info('Note: Make sure to add needed imports if not present:');
-      _logger.info('  import \'package:fpdart/fpdart.dart\';');
-      _logger.info('  import \'package:simplex/errors/app_error.dart\';');
+      // Update simplex.yaml
+      final SimplexConfig newConfig = config.copyWith(
+        features: <String, FeatureConfig>{
+          ...config.features,
+          featureName: FeatureConfig(api: featureConfig.api, paging: true),
+        },
+      );
+      saveConfig(projectRoot, newConfig);
+
+      progress.complete('Paging support added to $featureName!');
     } catch (e) {
-      progress.fail('Injection failed: $e');
+      progress.fail('Failed to add paging: $e');
       return 1;
     }
 
     return 0;
-  }
-
-  String _injectPagingMethod(String content, String className) {
-    final List<String> classNameCandidates = <String>[
-      className,
-      '${className}Cubit',
-    ];
-
-    String? foundClass;
-    for (final String candidate in classNameCandidates) {
-      if (content.contains('class $candidate extends SimplexCubit')) {
-        foundClass = candidate;
-        break;
-      }
-    }
-
-    if (foundClass == null) {
-      throw Exception('Could not find class definition for $className or ${className}Cubit extending SimplexCubit');
-    }
-
-    final int lastBraceIndex = content.lastIndexOf('}');
-    if (lastBraceIndex == -1) {
-      throw Exception('Could not find closing brace of the file');
-    }
-
-    final String methodSnippet = '''
- 
-  /// Fetch function consumed by [PagingCubit].
-  /// Returns a tuple of (items, nextPageKey) — pass null as nextPageKey when there are no more pages.
-  Future<(List<any>, int?)> fetch$className(int page, String? search) async {
-    // TODO: update [any] with your model and use your repository
-    // final Either<AppError, any> response = await _repository.get$className();
-    // return response.fold(
-    //   (AppError error) {
-    //     emit(state.copyWith(status: BlocStatus.error(error: error.toString())));
-    //     throw error;
-    //   },
-    //   (any data) {
-    //     emit(state.copyWith(status: BlocStatus.success(apiData: ApiData<any>.fromData(data: data))));
-    //     return (<any>[data], null);
-    //   },
-    // );
-    throw UnimplementedError('fetch$className not implemented');
-  }
-''';
-
-    return content.substring(0, lastBraceIndex) + methodSnippet + content.substring(lastBraceIndex);
   }
 }

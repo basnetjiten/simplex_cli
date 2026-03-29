@@ -10,40 +10,31 @@ import 'package:simplex_cli/src/config/simplex_config.dart';
 class InitCommand extends Command<int> {
   InitCommand({required Logger logger}) : _logger = logger {
     argParser
-      ..addFlag(
-        'interactive',
-        help:
-            'Whether to use interactive prompts by default for all commands.\n'
-            'Pass --no-interactive once during init to configure the CLI for\n'
-            'automated / agent use (e.g. opencode, claude). This preference is\n'
-            'saved to simplex.yaml and respected by every subsequent command.',
-        defaultsTo: null,
-      )
       ..addOption(
         'project-name',
-        abbr: 'n',
-        help: 'The name of the Flutter project.',
+        help: 'The name of the project (default: basename of project root)',
       )
       ..addOption(
         'package-name',
-        abbr: 'p',
-        help: 'The Dart package name used in import paths.',
+        help: 'The name of the package (from pubspec.yaml)',
       )
       ..addOption(
         'features-path',
-        help: 'Path to the features directory.',
-        defaultsTo: 'lib/features',
+        help: 'The path to store generated features (default: lib/features)',
       )
       ..addOption(
         'test-path',
-        help: 'Path to the test directory.',
-        defaultsTo: 'test/features',
+        help: 'The path to store tests (default: test/features)',
       )
       ..addOption(
         'default-api',
-        help: 'Default API type for new features.',
-        allowed: <String>['graphql', 'rest'],
-        defaultsTo: 'graphql',
+        help: 'The default API type (graphql or rest)',
+      )
+      ..addFlag(
+        'interactive',
+        help: 'Set the default interaction preference for the CLI.\n'
+            'Commands will defer to this choice if the --[no-]interactive flag is omitted.',
+        defaultsTo: null,
       );
   }
 
@@ -53,137 +44,82 @@ class InitCommand extends Command<int> {
   String get name => 'init';
 
   @override
-  String get description => 'Configure simplex_cli (e.g. simplex init)';
+  String get description => 'Initialise Simplex configuration (simplex.yaml).';
 
   @override
   Future<int> run() async {
     final String projectRoot = Directory.current.path;
-    final String configPath = p.join(projectRoot, 'simplex.yaml');
+    final File configFile = File(p.join(projectRoot, 'simplex.yaml'));
 
-    // If --[no-]interactive was explicitly passed, use it.
-    // Otherwise default to true for the init command itself (it is always
-    // safe to run interactively the first time).
+    // Explicit CLI flag wins; otherwise defer to existing config/true.
     final bool isInteractive = argResults?.wasParsed('interactive') == true
         ? (argResults!['interactive'] as bool)
-        : true;
+        : (loadConfig(projectRoot)?.interactive ?? true);
 
-    if (File(configPath).existsSync()) {
-      if (!isInteractive) {
-        _logger.info('simplex.yaml already exists. Skipping init in non-interactive mode.');
-        return 0;
-      }
+    if (configFile.existsSync() && !isInteractive) {
+      _logger.info('simplex.yaml already exists. Skipping init in non-interactive mode.');
+      return 0;
+    }
+
+    if (configFile.existsSync()) {
       final bool overwrite = Confirm(
         prompt: 'simplex.yaml already exists. Overwrite?',
         defaultValue: false,
       ).interact();
-      if (!overwrite) {
-        _logger.info('Init cancelled.');
-        return 0;
-      }
+      if (!overwrite) return 0;
     }
 
-    _logger.info('');
-    _logger.info(lightCyan.wrap('🚀  Initializing simplex_cli...')!);
-    _logger.info('');
-
-    // Derive defaults from pubspec.yaml if present
-    String defaultProjectName = p.basename(projectRoot);
-    final File pubspec = File(p.join(projectRoot, 'pubspec.yaml'));
-    if (pubspec.existsSync()) {
-      final String content = pubspec.readAsStringSync();
-      final RegExpMatch? match = RegExp(r'^name:\s*(.+)$', multiLine: true).firstMatch(content);
-      if (match != null) {
-        defaultProjectName = match.group(1)!.trim();
-      }
-    }
-
+    final String defaultProjectName = p.basename(projectRoot);
     final String projectName = argResults?['project-name'] as String? ??
-        (isInteractive
-            ? Input(
-                prompt: 'Project name',
-                defaultValue: defaultProjectName,
-              ).interact()
-            : defaultProjectName);
+        (isInteractive ? Input(prompt: 'Project name', defaultValue: defaultProjectName).interact() : defaultProjectName);
 
+    final String defaultPackageName = projectName;
     final String packageName = argResults?['package-name'] as String? ??
-        (isInteractive
-            ? Input(
-                prompt: 'Package name (used in imports)',
-                defaultValue: defaultProjectName,
-              ).interact()
-            : defaultProjectName);
+        (isInteractive ? Input(prompt: 'Package name', defaultValue: defaultPackageName).interact() : defaultPackageName);
 
     final String featuresPath = argResults?['features-path'] as String? ??
-        (isInteractive
-            ? Input(
-                prompt: 'Features path',
-                defaultValue: 'lib/features',
-              ).interact()
-            : 'lib/features');
+        (isInteractive ? Input(prompt: 'Features path', defaultValue: 'lib/features').interact() : 'lib/features');
 
     final String testPath = argResults?['test-path'] as String? ??
+        (isInteractive ? Input(prompt: 'Test path', defaultValue: 'test/features').interact() : 'test/features');
+
+    final String defaultApi = argResults?['default-api'] as String? ??
         (isInteractive
-            ? Input(
-                prompt: 'Test path',
-                defaultValue: 'test/features',
-              ).interact()
-            : 'test/features');
-
-    final List<String> apiChoices = <String>['graphql', 'rest'];
-    String? apiTypeMatch = argResults?['default-api'] as String?;
-    final int apiIndex = apiTypeMatch != null
-        ? apiChoices.indexOf(apiTypeMatch)
-        : (isInteractive
             ? Select(
-                prompt: 'Default API type for new features',
-                options: apiChoices,
-              ).interact()
-            : 0);
+                prompt: 'Default API type',
+                options: <String>['graphql', 'rest'],
+              ).interact().let((int i) => i == 0 ? 'graphql' : 'rest')
+            : 'graphql');
 
-    // ── Interactive mode preference ────────────────────────────────────────
-    // If --[no-]interactive was explicitly passed on the CLI, honour it.
-    // Otherwise ask during interactive setup, or default to true.
-    final bool saveInteractive;
-    if (argResults?.wasParsed('interactive') == true) {
-      saveInteractive = argResults!['interactive'] as bool;
-    } else if (isInteractive) {
-      saveInteractive = Confirm(
-        prompt: 'Enable interactive prompts for all commands by default?\n'
-            '  (choose No for automated / agent use — e.g. opencode, claude)',
-        defaultValue: true,
-      ).interact();
-    } else {
-      saveInteractive = true;
-    }
+    final bool interactivePref = argResults?.wasParsed('interactive') == true
+        ? (argResults!['interactive'] as bool)
+        : (isInteractive
+            ? Confirm(
+                prompt: 'Should Simplex be interactive by default?',
+                defaultValue: true,
+              ).interact()
+            : true);
 
     final SimplexConfig config = SimplexConfig(
       projectName: projectName,
       packageName: packageName,
       featuresPath: featuresPath,
       testPath: testPath,
-      defaultApi: apiChoices[apiIndex],
+      defaultApi: defaultApi,
       features: <String, FeatureConfig>{},
-      interactive: saveInteractive,
+      interactive: interactivePref,
     );
 
     saveConfig(projectRoot, config);
 
     _logger.info('');
-    _logger.success('simplex.yaml created at $configPath');
-    _logger.info(
-      '  Mode: ${saveInteractive ? cyan.wrap('interactive') : yellow.wrap('non-interactive (agent-friendly)')}',
-    );
+    _logger.success('✨  Simplex initialised! Configuration saved to simplex.yaml');
     _logger.info('');
-    if (!saveInteractive) {
-      _logger.info(
-        darkGray.wrap(
-          'Tip: All commands will now skip prompts automatically.\n'
-          '     Override per-command with --interactive if needed.',
-        )!,
-      );
-      _logger.info('');
-    }
-    _logger.info('Run ${cyan.wrap('simplex make:feature <Name>')} to scaffold your first feature!');
+
     return 0;
   }
+}
+
+extension Let<T> on T {
+  R let<R>(R Function(T) op) => op(this);
 }

@@ -69,6 +69,7 @@ class MakeCubitCommand extends Command<int> {
     }
 
     final String cubitClass = toUpperCamelCase(snakeCase(rawName));
+    final String cubitSnake = snakeCase(rawName);
 
     // ── Resolve feature (path-aware) ─────────────────────────────────────────
     final String featureName = resolveFeatureName(
@@ -95,8 +96,10 @@ class MakeCubitCommand extends Command<int> {
         config: config,
         brickName: 'cubit',
         featureName: featureName,
-        featureClass: cubitClass,
+        featureClass: toUpperCamelCase(featureName), // Original feature class for context
         additionalVars: <String, dynamic>{
+          'cubit_name': cubitSnake,
+          'cubit_class': cubitClass,
           'use_paging': usePaging,
         },
       );

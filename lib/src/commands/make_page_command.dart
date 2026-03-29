@@ -17,7 +17,7 @@ class MakePageCommand extends Command<int> {
       )
       ..addFlag(
         'paging',
-        help: 'Wrap the page body with PagingCubit.',
+        help: 'Add PagingCubit logic to the new page.',
         defaultsTo: null,
       );
   }
@@ -28,9 +28,8 @@ class MakePageCommand extends Command<int> {
   String get name => 'make:page';
 
   @override
-  String get description => 'Create a new Page widget for a feature.\n'
-      'Example: simplex make:page login\n'
-      '         simplex make:page product_list --paging\n'
+  String get description => 'Create a new page UI component for a feature.\n'
+      'Example: simplex make:page ProductDetail\n'
       'Path-aware: run from inside a feature folder to skip the feature prompt.';
 
   @override
@@ -57,7 +56,7 @@ class MakePageCommand extends Command<int> {
     if (argResults!.rest.isNotEmpty) {
       rawName = argResults!.rest.first;
     } else if (isInteractive) {
-      rawName = Input(prompt: 'Page name (snake_case, e.g. login)').interact();
+      rawName = Input(prompt: 'Page name (PascalCase, e.g. ProductDetail)').interact();
     } else {
       throw UsageException(
         'Page name is required as a positional argument in non-interactive mode.',
@@ -66,6 +65,7 @@ class MakePageCommand extends Command<int> {
     }
 
     final String pageClass = toUpperCamelCase(snakeCase(rawName));
+    final String pageSnake = snakeCase(rawName);
 
     // ── Resolve feature (path-aware) ─────────────────────────────────────────
     final String featureName = resolveFeatureName(
@@ -97,8 +97,10 @@ class MakePageCommand extends Command<int> {
         config: config,
         brickName: 'page',
         featureName: featureName,
-        featureClass: pageClass,
+        featureClass: toUpperCamelCase(featureName), // Original feature class for context
         additionalVars: <String, dynamic>{
+          'page_name': pageSnake,
+          'page_class': pageClass,
           'use_paging': usePaging,
         },
       );
