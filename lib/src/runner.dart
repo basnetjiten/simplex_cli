@@ -5,6 +5,7 @@ import 'package:mason_logger/mason_logger.dart';
 import 'package:simplex_cli/src/commands/add_command.dart';
 import 'package:simplex_cli/src/commands/convert_command.dart';
 import 'package:simplex_cli/src/commands/init_command.dart';
+import 'package:simplex_cli/src/commands/remove_command.dart';
 import 'package:simplex_cli/src/commands/make_bloc_command.dart';
 import 'package:simplex_cli/src/commands/make_cubit_command.dart';
 import 'package:simplex_cli/src/commands/make_feature_command.dart';
@@ -40,6 +41,7 @@ class SimplexRunner {
       'init': InitCommand(logger: logger),
       'convert': ConvertCommand(logger: logger),
       'add': AddCommand(logger: logger),
+      'remove': RemoveCommand(logger: logger),
       // Artisan-style colon commands (stored under their full "make:xxx" key)
       'make:feature': MakeFeatureCommand(logger: logger),
       'make:cubit': MakeCubitCommand(logger: logger),
@@ -153,14 +155,12 @@ class SimplexRunner {
       '  ${cyan.wrap('simplex make:repo')}       user              — create repo abstract + impl',
     );
     logger.info(
-      '  ${cyan.wrap('simplex make:repo')}       user              — create repo abstract + impl',
-    );
-    logger.info(
       '  ${cyan.wrap('simplex make:source')}     auth              — create source abstract + impl',
     );
     logger.info('');
     logger.info(styleBold.wrap('OTHER COMMANDS')!);
     logger.info('  ${cyan.wrap('simplex init')}                         — initialise simplex.yaml');
+    logger.info('  ${cyan.wrap('simplex remove <feature>')}             — remove a feature module');
     logger.info('  ${cyan.wrap('simplex convert <feature> --to rest')}  — convert data layer');
     logger.info('  ${cyan.wrap('simplex add paging')}                   — add paging support');
     logger.info('');

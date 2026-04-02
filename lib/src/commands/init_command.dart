@@ -98,7 +98,26 @@ class InitCommand extends Command<int> {
                 prompt: 'Should Simplex be interactive by default?',
                 defaultValue: true,
               ).interact()
-            : true);
+            : isInteractive);
+
+    final SimplexConfig? existingConfig = loadConfig(projectRoot);
+    final Map<String, FeatureConfig> features = existingConfig?.features ?? <String, FeatureConfig>{};
+
+    // Auto-discovery of existing features on disk
+    final Directory featuresDir = Directory(p.join(projectRoot, featuresPath));
+    if (featuresDir.existsSync()) {
+      final List<FileSystemEntity> entities = featuresDir.listSync();
+      for (final FileSystemEntity entity in entities) {
+        if (entity is Directory) {
+          final String name = p.basename(entity.path);
+          // Only add if not already in config to preserve existing settings (api, paging)
+          features.putIfAbsent(
+            name,
+            () => FeatureConfig(api: defaultApi, paging: false),
+          );
+        }
+      }
+    }
 
     final SimplexConfig config = SimplexConfig(
       projectName: projectName,
@@ -106,7 +125,7 @@ class InitCommand extends Command<int> {
       featuresPath: featuresPath,
       testPath: testPath,
       defaultApi: defaultApi,
-      features: <String, FeatureConfig>{},
+      features: features,
       interactive: interactivePref,
     );
 
