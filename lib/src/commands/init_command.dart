@@ -56,12 +56,13 @@ class InitCommand extends Command<int> {
         ? (argResults!['interactive'] as bool)
         : (loadConfig(projectRoot)?.interactive ?? true);
 
-    if (configFile.existsSync() && !isInteractive) {
-      _logger.info('simplex.yaml already exists. Skipping init in non-interactive mode.');
-      return 0;
-    }
-
     if (configFile.existsSync()) {
+      // Non-interactive: always skip silently (covers LLM agents, CI, piped stdin).
+      // Interactive with a real terminal: ask the user whether to overwrite.
+      if (!isInteractive || !stdin.hasTerminal) {
+        _logger.detail('simplex.yaml already exists. Skipping init.');
+        return 0;
+      }
       final bool overwrite = Confirm(
         prompt: 'simplex.yaml already exists. Overwrite?',
         defaultValue: false,
