@@ -6,22 +6,22 @@ import 'package:{{package_name}}/features/{{feature_name}}/domain/sources/{{sour
 import 'package:simplex/base/simplex_base_remote_source.dart';
 import 'package:injectable/injectable.dart';
 import 'package:ferry/ferry.dart';
-import 'package:fpdart/fpdart.dart';
+
 
 @Injectable(as: {{source_class}}RemoteSource)
 class {{source_class}}RemoteSourceImpl extends SimplexGraphqlRemoteSource implements {{source_class}}RemoteSource {
   {{source_class}}RemoteSourceImpl(super._graphqlClient);
 
   @override
-  Future<Unit> get{{source_class}}() async {
- // TODO: build the Ferry request and execute:
- // final GForgotPasswordReq forgotMutation = GForgotPasswordReq(
- //   (GForgotPasswordReqBuilder b) => b
- //     ..vars.body.deviceId = deviceId
- //     ..vars.body.email = email,
- // );
- //
- // return executeGraphqlApiCall(forgotMutation);
+  Future<G{{source_class}}Data?> get{{source_class}}() async {
+    // TODO: build the Ferry request and execute:
+    // final G{{source_class}}Req {{source_name.camelCase()}}Req = G{{source_class}}Req(
+    //   (G{{source_class}}ReqBuilder b) => b
+    //     ..vars.deviceId = deviceId
+    //     ..vars.email = email,
+    // );
+    //
+    // return executeGraphqlApiCall({{source_name.camelCase()}}Req);
     throw UnimplementedError('get{{source_class}} not implemented yet');
   }
 }

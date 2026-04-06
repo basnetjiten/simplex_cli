@@ -19,8 +19,8 @@ class {{feature_class}}RepositoryImpl extends SimplexBaseRepository
   EitherResponse<{{feature_class}}Model> get{{feature_class}}() => processApiCall(
         call: _source.get{{feature_class}}(),
         {{#use_graphql}}
-        // TODO: replace [dynamic] with the Ferry GXData type and map to model
-        onSuccess: (dynamic data) => {{feature_class}}Model.fromRemote(data),
+        // TODO: replace [G{{feature_class}}Data] with the Ferry GXData type and map to model
+        onSuccess: (G{{feature_class}}Data? data) => {{feature_class}}Model.fromRemote(data),
         {{/use_graphql}}
         {{^use_graphql}}
         onSuccess: ({{feature_class}}Model data) => data,
