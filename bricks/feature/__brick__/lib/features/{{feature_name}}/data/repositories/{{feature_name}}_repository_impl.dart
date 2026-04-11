@@ -5,8 +5,8 @@ import 'package:{{package_name}}/features/{{feature_name}}/data/models/{{feature
 import 'package:{{package_name}}/features/{{feature_name}}/domain/repositories/{{feature_name}}_repository.dart';
 import 'package:{{package_name}}/features/{{feature_name}}/domain/sources/{{feature_name}}_source.dart';
 import 'package:injectable/injectable.dart';
-import 'package:simplex/base/simplex_base_repository.dart';
-import 'package:simplex/typedefs/typedefs.dart';
+import 'package:simplex/simplex_base.dart';
+import 'package:simplex/simplex_typedefs.dart';
 
 @Injectable(as: {{feature_class}}Repository)
 class {{feature_class}}RepositoryImpl extends SimplexBaseRepository

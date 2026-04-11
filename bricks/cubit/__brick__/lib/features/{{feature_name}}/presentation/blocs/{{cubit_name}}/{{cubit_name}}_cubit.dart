@@ -11,7 +11,7 @@ import 'package:{{package_name}}/features/{{feature_name}}/domain/repositories/{
 import 'package:{{package_name}}/features/{{feature_name}}/data/models/{{feature_name}}_model.dart';
 {{/use_paging}}
 import 'package:simplex/errors/app_error.dart';
-import 'package:simplex/form/bloc_status.dart';
+import 'package:simplex/simplex_forms.dart';
 import 'package:simplex/simplex_base.dart';
 {{#use_paging}}
 import 'package:fpdart/fpdart.dart';

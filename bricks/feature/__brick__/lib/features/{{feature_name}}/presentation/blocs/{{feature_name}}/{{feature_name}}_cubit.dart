@@ -10,11 +10,13 @@ import 'package:{{package_name}}/features/{{feature_name}}/domain/repositories/{
 {{^use_paging}}
 import 'package:{{package_name}}/features/{{feature_name}}/data/models/{{feature_name}}_model.dart';
 {{/use_paging}}
-import 'package:simplex/errors/app_error.dart';
-import 'package:simplex/form/bloc_status.dart';
+
 import 'package:simplex/simplex_base.dart';
+import 'package:simplex/simplex_errors.dart';
+import 'package:simplex/simplex_forms.dart';
 {{#use_paging}}
 import 'package:fpdart/fpdart.dart';
+import 'package:simplex/simplex_paging.dart';
 {{/use_paging}}
 
 part '{{feature_name}}_cubit.freezed.dart';

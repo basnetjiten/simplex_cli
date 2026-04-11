@@ -13,7 +13,7 @@ import 'package:simplex/pagination/paging_cubit.dart';
 import 'package:simplex/pagination/paging_state.dart';
 {{/use_paging}}
 {{^use_paging}}
-import 'package:simplex/form/bloc_status.dart';
+import 'package:simplex/simplex_forms.dart';
 {{/use_paging}}
 
 @RoutePage()
