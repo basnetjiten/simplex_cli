@@ -3,15 +3,15 @@
   "packages": [
     {
       "name": "_fe_analyzer_shared",
-      "rootUri": "file:///Users/jitenbasnet/.pub-cache/hosted/pub.dev/_fe_analyzer_shared-98.0.0",
+      "rootUri": "file:///Users/jitenbasnet/.pub-cache/hosted/pub.dev/_fe_analyzer_shared-88.0.0",
       "packageUri": "lib/",
-      "languageVersion": "3.9"
+      "languageVersion": "3.7"
     },
     {
       "name": "analyzer",
-      "rootUri": "file:///Users/jitenbasnet/.pub-cache/hosted/pub.dev/analyzer-12.0.0",
+      "rootUri": "file:///Users/jitenbasnet/.pub-cache/hosted/pub.dev/analyzer-8.1.1",
       "packageUri": "lib/",
-      "languageVersion": "3.9"
+      "languageVersion": "3.7"
     },
     {
       "name": "archive",
@@ -153,9 +153,9 @@
     },
     {
       "name": "json_annotation",
-      "rootUri": "file:///Users/jitenbasnet/.pub-cache/hosted/pub.dev/json_annotation-4.11.0",
+      "rootUri": "file:///Users/jitenbasnet/.pub-cache/hosted/pub.dev/json_annotation-4.9.0",
       "packageUri": "lib/",
-      "languageVersion": "3.9"
+      "languageVersion": "3.0"
     },
     {
       "name": "lints",
@@ -201,9 +201,9 @@
     },
     {
       "name": "mustache_template",
-      "rootUri": "file:///Users/jitenbasnet/.pub-cache/hosted/pub.dev/mustache_template-2.0.4",
+      "rootUri": "file:///Users/jitenbasnet/.pub-cache/hosted/pub.dev/mustache_template-2.0.2",
       "packageUri": "lib/",
-      "languageVersion": "3.9"
+      "languageVersion": "3.7"
     },
     {
       "name": "node_preamble",
@@ -399,8 +399,6 @@
     }
   ],
   "generator": "pub",
-  "generatorVersion": "3.11.1",
-  "flutterRoot": "file:///Users/jitenbasnet/Downloads/development/flutter",
-  "flutterVersion": "3.41.4",
+  "generatorVersion": "3.8.1",
   "pubCache": "file:///Users/jitenbasnet/.pub-cache"
 }

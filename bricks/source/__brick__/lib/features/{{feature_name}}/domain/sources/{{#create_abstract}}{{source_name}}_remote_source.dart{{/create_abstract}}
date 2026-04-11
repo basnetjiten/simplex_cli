@@ -2,7 +2,9 @@
 /// Generated with Simplex CLI
 
 {{#use_graphql}}
-
+// STUB: Remove this typedef after GraphQL types are generated
+// EXPECTED_TYPE: G{{source_class}}Data
+typedef G{{source_class}}Data = dynamic;
 
 /// Abstract source contract for [{{source_class}}].
 /// Implementations live in data/sources/ and return Ferry GXData objects.

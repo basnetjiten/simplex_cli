@@ -18,7 +18,8 @@ abstract class {{model_class}}Model with _${{model_class}}Model {
 
   {{#use_graphql}}
   /// Convert from Ferry-generated GXData object.
-  // TODO: replace [dynamic] with your generated Ferry type
+  // STUB: Replace dynamic with generated Ferry type
+  // EXPECTED_TYPE: G{{model_class}}Data
   factory {{model_class}}Model.fromRemote(dynamic remote) => {{model_class}}Model(
         id: remote.id as String,
         // TODO: map fields from remote

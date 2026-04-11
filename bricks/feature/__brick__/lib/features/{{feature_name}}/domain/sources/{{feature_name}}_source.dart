@@ -2,7 +2,9 @@
 /// Generated with Simplex CLI
 import 'package:fpdart/fpdart.dart';
 {{#use_graphql}}
-
+// STUB: Remove this typedef after GraphQL types are generated
+// EXPECTED_TYPE: G{{feature_class}}Data
+typedef G{{feature_class}}Data = dynamic;
 
 /// Abstract source contract for [{{feature_class}}].
 /// Implementations live in data/sources/ and return Ferry GXData objects.
