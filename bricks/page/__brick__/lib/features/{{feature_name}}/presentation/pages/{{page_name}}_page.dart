@@ -10,9 +10,10 @@ import 'package:{{package_name}}/features/{{feature_name}}/presentation/blocs/{{
 import 'package:{{package_name}}/features/{{feature_name}}/data/models/{{feature_name}}_model.dart';
 import 'package:simplex/pagination/paging_cubit.dart';
 import 'package:simplex/pagination/paging_state.dart';
+import 'package:simplex/simplex_paging.dart';
 {{/use_paging}}
 {{^use_paging}}
-import 'package:simplex/form/bloc_status.dart';
+import 'package:simplex/simplex_forms.dart';
 {{/use_paging}}
 
 @RoutePage()
